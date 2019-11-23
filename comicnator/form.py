@@ -1,4 +1,4 @@
-from wtforms import Form, StringField, PasswordField, validators
+from wtforms import Form, PasswordField, StringField, validators
 
 
 class learnForm(Form):
