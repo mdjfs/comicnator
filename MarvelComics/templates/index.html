@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='css/index.css')}}">
+<h1 class="titulo_inicio">Bienvenido a <i>Comic</i>Nator</h1>
+<p class="parrafo_inicio">Hola!<br /><br />
+    Piensa en un superheroe del universo marvel, tratare de adivinarlo
+    haciendote ciertas preguntas especificas y responderas
+    con si o no. Si consigo respuesta, te la dire, si la respuesta
+    no es la que esperabas o no se encontro ayudame con una
+    corta encuesta, aprendere con eso.<br /><br />
+    Cuando estes listo, presiona el boton GO! para comenzar</p>
+<form method="POST">
+    <input type="submit" name="redirecc" value="GO" class="ir">
+</form>
+{% endblock %}

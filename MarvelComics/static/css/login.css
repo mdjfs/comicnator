@@ -1,0 +1,32 @@
+.fields{
+    left:20%;
+    position:relative;
+    font-size:20px;
+    font-family: sans-serif;
+    font-weight: 400;
+}
+.containers{
+    top:-5%;
+    position:relative;
+}
+.login{
+    position:absolute;
+    left:40%;
+    top:30%;
+    width:20%;
+    height:40%;
+    background-color:rgba(22, 165, 22, 0.37);
+    border-radius: 50px;
+}
+.loginenviar{
+    background-color:rgba(255,255,255,0.4);
+    font-size:16px;
+    color:black;
+    font-family: sans-serif;
+    position:absolute;
+    top:80%;
+    outline:none;
+    left:40%;
+    border-radius:10px;
+    border-collapse: black;
+}

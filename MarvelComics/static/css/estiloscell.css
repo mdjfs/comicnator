@@ -1,0 +1,228 @@
+body{
+    background-image: url('marvelcell.jpg');
+    background-size: cover;
+}
+.information{
+    background-image:url('informationcell.png');
+    width:55px;
+    height:55px;
+    position:absolute;
+    top:180px;
+    left:300px;
+    border-radius:25px;
+    outline:none;
+    background-color:white;
+    opacity:0.5;
+}
+.informationtext{
+    position:absolute;
+    font-size:16px;
+    color:white;
+    top:180px;
+    left:360px;
+    opacity:0.6;
+    font-family: sans-serif;
+}
+.go{
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 120px;
+    font-family: sans-serif;
+    font-weight: 100;
+    position:absolute;
+    letter-spacing:-2px;
+    color:rgba(0,0,0,1);
+    text-shadow: 0 0 3px white, 0 0 6px darkorchid, 0 0 10px darkorange, 0 0 15px darkred; 
+    top:830px;
+    left:400px;
+    animation: opacity 2s ease infinite alternate;
+}
+@keyframes opacity{
+    from{
+        opacity: 1;
+    }
+    to{
+        opacity:0.5;
+    }
+}
+.info{
+    padding: 4 4 4 4px;
+    background-color:rgba(255, 255, 255, 0.7);
+    position:absolute;
+    top:30%;
+    left:23%;
+    border-radius:30px;
+}
+.titulo_inicio{
+    font-size:24px;
+    font-family:Arial;
+    color:rgba(139, 0, 0, 0.7);
+    text-align:center;
+    text-decoration:none;
+
+}
+.parrafo_inicio{
+    font-size:30px;
+    top:10%;
+    left:5%;
+    right:5%;
+    font-family:Arial;
+    color:rgba(0, 0, 0, 0.7);
+    position:absolute;
+    text-align:justify;
+    text-decoration:none;
+
+}
+.informationminimize{
+    background-image: url('salir.png');
+    border: none;
+    outline: none;
+    height:20px;
+    width:20px;
+    position:absolute;
+    left:90%;
+    top:4%;
+    color: transparent;
+}
+.si{
+    outline:none;
+    background-color:rgba(255, 166, 0, 0.596);
+    width:130px;
+    height:70px;
+    border-radius:30px;
+    color:rgba(0,0,0,0.5);
+    opacity:0.6;
+    font-size:50px;
+    font-weight: 500;
+    font-family: sans-serif;
+}
+#final{
+    font-family:sans-serif;
+    position:absolute;
+    top:80%;
+    left:2%;
+    text-align:left;
+    font-weight: 80;
+    font-size:24px;
+    font-weight: bold;
+    color:black;
+}
+h2{
+    position: absolute;
+    font-size:50px;
+    text-align:center;
+    color:darkred;
+    font-weight:bold;
+    font-family:sans-serif;
+    top:40%;
+    left:10%;
+    right:10%;
+}
+#si{
+    position:absolute;
+    top:1400px;
+    left:100px;
+}
+#no{
+    position:absolute;
+    top:1400px;
+    left:750px;
+}
+#nose{
+    position:absolute;
+    top:1400px;
+    width:280px;
+    left:350px;
+}
+.pregunta{
+    background-color:rgba(255, 255, 255, 0.678);
+    border-radius:50px;
+    font-size:35px;
+    font-family: sans-serif;
+    font-weight: lighter;
+    position:relative;
+    top:300px;
+    left:230px;
+    text-align:center;
+    padding: 10px 2px 2px 2px;
+    width:500px;
+    height:150px;
+}
+.notificacion{
+    position:absolute;
+    left:10%;
+    background-color:greenyellow;
+    opacity:0.2;
+    width:80%;
+    height:5%;
+    padding-top:1%;
+    text-align:center;
+    border-radius:36px;
+    font-size:20px;
+    font-family:sans-serif;
+}
+.cuadro{
+    padding: 4 4 4 4px;
+    background-color:rgba(255, 255, 255, 0.7);
+    position:relative;
+    width:80%;
+    height:60%;
+    top:20%;
+    left:10%;
+    border-radius:30px;
+}
+#personaje{
+    position:absolute;
+    align-content:center;
+    left:40%;
+    right:33%;
+    top:20%;
+}
+.text{
+    background: transparent;
+    border: none;
+    outline: none;
+    opacity:1;
+    font-family:sans-serif;
+    position:absolute;
+    left:2%;
+    top:90%;
+    align-content:left;
+    font-weight: bold;
+    font-size:26px;
+    color:black;
+    animation: opacity 0.5s ease infinite alternate;
+}
+#ayuda{
+    position:absolute;
+    top:94.5%;
+    left:94.5%;
+    width:2%;
+    height:2%;
+    opacity:0.5;
+}
+.volver{
+    padding: 4px 4px 0px 0px;
+    position:absolute;
+    top:90%;
+    left:67%;
+    width:30%;
+    height:5%;
+    border-radius:20px;
+    background-color:rgba(160, 0, 0, 0.3);
+    font-size:130%;
+    font-weight:100;
+    font-family: sans-serif;
+}
+.volverbutton{
+    color:black;
+    position:relative;
+    font-weight: 900;
+    border-radius:20px;
+    height: 100%;
+    width: 20%;
+    background-color:rgba(160, 0, 0, 0.5);
+    border-color:white;
+    outline:none;
+}

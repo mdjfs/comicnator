@@ -1,0 +1,37 @@
+body{
+    background-image: url('marvel.jpg');
+    background-size: cover;
+}
+
+.content{
+    padding: 4 4 4 4px;
+    background-color:rgba(255, 255, 255, 0.7);
+    position:relative;
+    width:40%;
+    height:60%;
+    top:20%;
+    left:30%;
+    border-radius:30px;
+}
+
+#ayuda{
+    position:absolute;
+    top:93.5%;
+    left:93.5%;
+    width:2%;
+    height:4%;
+}
+
+.notificacion{
+    position:absolute;
+    left:10%;
+    background-color:greenyellow;
+    opacity:0.2;
+    width:80%;
+    height:5%;
+    padding-top:1%;
+    text-align:center;
+    border-radius:36px;
+    font-size:20px;
+    font-family:sans-serif;
+}

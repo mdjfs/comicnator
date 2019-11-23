@@ -1,0 +1,23 @@
+{% extends 'base/basecell.html' %}
+
+{% block content %}
+<script type="text/javascript" src="{{url_for('static',filename='js/infocell.js')}}"></script>
+<div id="inf" class="info" hidden>
+    <h1 id="title" class="titulo_inicio" hidden>Bienvenido a <i>Comic</i>Nator</h1>
+    <p id="parrafo" class="parrafo_inicio" hidden>Hola!<br /><br />
+        Piensa en un superheroe del universo marvel, tratare de adivinarlo
+        haciendote ciertas preguntas especificas y responderas
+        con si o no. Si consigo respuesta, te la dire, si la respuesta
+        no es la que esperabas o no se encontro ayudame con una
+        corta encuesta, aprendere con eso.<br /><br />
+        Cuando estes listo, presiona el boton GO! para comenzar</p>
+    <input id="infomin" type="submit" name="infomin" class="informationminimize" value="" onclick="InfoMinimize()"
+        hidden>
+</div>
+<input type="submit" name="info" class="information" value="" onclick="Info()">
+<form method="POST">
+    <h4 class="informationtext" onclick="Info()">Click para mas informacion</h4>
+    <input id="go" type="submit" name="go" class="go" value="GO">
+</form>
+
+{% endblock %}

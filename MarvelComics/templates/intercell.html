@@ -1,0 +1,32 @@
+{% extends 'base/basecell.html' %}
+
+{%block content%}
+{{ JSGlue.include() }}
+{% if final != true%}
+<h1 class="pregunta">¿ {{ pregunta }} ?</h1>
+<form method="POST">
+    <input type="submit" value="SI" name="si" id="si" class="si" />
+    <input type="submit" value="NO LO SE" name="no lo se" id="nose" class="si" />
+    <input type="submit" value="NO" name="no" id="no" class="si" />
+</form>
+{% endif %}
+{% if final == true %}
+<div class="cuadro">
+    <img id="personaje" onerror="imagenotfound()"></img>
+    <h2 id='1'>
+        {{pregunta}}
+    </h2>
+    <form method="POST">
+        <p id="final">
+
+        </p>
+        <input id="irfinal" type="submit" name="final" value="" class="text">
+        <div class="volver">
+            <input type="submit" name="volver" value="<" class="volverbutton">
+            Volver a jugar
+        </div>
+    </form>
+    <script type="text/javascript" src="{{url_for('static',filename='js/imagescell.js')}}"></script>
+</div>
+{% endif %}
+{%endblock%}

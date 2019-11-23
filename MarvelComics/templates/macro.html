@@ -1,0 +1,11 @@
+{% macro render_field(field, clase) %}
+<td>
+    <h4 class="fields">{{ field.label }}</h4>
+</td>
+<dd class="containers"> {{ field(**kwargs)|safe }}</dd>
+{% if field.errors %}
+{%for error in field.errors%}
+<li>{{error}}</li>
+{%endfor%}
+{% endif %}
+{% endmacro %}

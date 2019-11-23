@@ -1,0 +1,13 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<form method="POST">
+    <input id="element_1" name="element_1" class="element text medium" type="text" maxlength="255" value="" required />
+    <select class="element select medium" id="element_3" name="element_3" required>
+        <option selected="selected"></option>
+        <option value="masculino">masculino</option>
+        <option value="femenino">femenino</option>
+        <option value="desconocido">desconocido</option>
+    </select>
+</form>
+{% endblock %}

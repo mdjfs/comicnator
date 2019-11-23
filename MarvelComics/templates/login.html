@@ -1,0 +1,9 @@
+{% from "macro.html" import render_field %}
+<link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='css/login.css')}}">
+<form method="POST">
+    <div class="login">
+        {{render_field(form.username)}}
+        {{render_field(form.password)}}
+        <input type="submit" name="button" id="button" value="login" class="loginenviar" />
+    </div>
+</form>

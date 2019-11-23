@@ -1,0 +1,49 @@
+<head>
+    <link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='css/notificacion.css')}}">
+    {% with message = get_flashed_messages() %}
+    {% if message %}
+    <ul>
+        {% for messages in message %}
+        <div class="notificacion">
+            {{messages}}
+        </div>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+</head>
+
+<body>
+    <h1 id="respuesta" hidden>{{ query }}</h1>
+    <h4 id="response">
+    </h4>
+    <table id="result">
+        <thead>
+            <tr>
+                <th>ID sugerencia</th>
+                <th>Nombre</th>
+                <th>Genero</th>
+                <th>Origen</th>
+                <th>Comienzo</th>
+                <th>Capacidad</th>
+                <th>Descripcion</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="id">asd</td>
+                <td id="nombre">asd</td>
+                <td id="genero">asd</td>
+                <td id="origen">asd</td>
+                <td id="comienzo">asd</td>
+                <td id="capacidad">asd</td>
+                <td id="descripcion">asd</td>
+            </tr>
+        </tbody>
+    </table>
+    <form method="POST">
+        <input type="submit" class="aceptar" name="acepto" id="acepto" value="">
+        <input type="submit" class="denegar" name="deniego" id="denego" value="">
+    </form>
+    <script type="text/javascript" src=" {{ url_for('static', filename='js/admin.js')}}"></script>
+</body>

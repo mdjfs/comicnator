@@ -1,0 +1,116 @@
+.rainbow {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 30px;
+    font-family: sans-serif;
+    font-weight: 100;
+    color: rgba(160, 0, 0, 0.7)
+}
+#final{
+    font-family:sans-serif;
+    position:absolute;
+    top:80%;
+    left:2%;
+    text-align:left;
+    font-weight: 80;
+    font-size:17px;
+    color:black;
+}
+.text{
+    background: transparent;
+    border: none;
+    outline: none;
+    opacity:1;
+    font-family:sans-serif;
+    position:absolute;
+    left:2%;
+    top:90%;
+    align-content:left;
+    font-weight: bold;
+    font-size:20px;
+    color:black;
+}
+.text:hover{
+    opacity:0.7;
+}
+.rainbow:hover{
+    color: rgba(160,0,0,0.45);
+    animation: scales 2s ease infinite alternate;
+}
+.rainbow:active{
+    color: #000000
+}
+@keyframes scales{
+    from{
+        transform : scale(0.8);
+    }
+    to{
+        transform : scale(1.1);
+    }
+}
+#si{
+    position:absolute;
+    top: 65%;
+    left: 15%;
+}
+#no{
+    position:absolute;
+    top: 65%;
+    left: 75%;
+}
+#nose{
+    position:absolute;
+    top: 80%;
+    left: 36%;
+}
+.pregunta{
+    text-align:justify;
+    font-size:24px;
+    position:relative;
+    top:20%;
+    text-align:center;
+    color:grey;
+    font-weight:bold;
+    font-family:arial;
+    text-shadow: black 1px 1px 1px;
+}
+h2{
+    position: absolute;
+    font-size:30px;
+    text-align:center;
+    color:darkred;
+    font-weight:bold;
+    font-family:sans-serif;
+    top:40%;
+    left:10%;
+    right:10%;
+}
+#personaje{
+    position:absolute;
+    align-content:center;
+    left:33%;
+    right:33%;
+    top:5%;
+}
+.volver{
+    position:absolute;
+    top:85%;
+    left:76%;
+    width:20%;
+    height:10%;
+    border-radius:20px;
+    background-color:rgba(160, 0, 0, 0.3);
+    font-size:30%;
+    font-weight:100;
+    font-family: sans-serif;
+}
+.volverbutton{
+    color:black;
+    font-weight: 900;
+    position:relative;
+    border-radius:20px;
+    background-color:rgba(160, 0, 0, 0.5);
+    border-color:white;
+    outline:none;
+}

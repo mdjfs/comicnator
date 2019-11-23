@@ -1,0 +1,100 @@
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>ComicNator Learn</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/view.css')}}" media="all">
+	<script type="text/javascript" src="{{ url_for('static', filename='js/view.js')}}"></script>
+</head>
+
+<body id="main_body">
+
+	<img id="top" src="{{ url_for('static', filename='css/top.png')}}" alt="">
+	<div id="form_container">
+
+		<h1><a>ComicNator</a></h1>
+		<form id="form_89921" class="appnitro" method="POST" action="learn">
+			<div class="form_description">
+				<h2>ComicNator learn with you</h2>
+				<p>Hablanos acerca de tu personaje</p>
+			</div>
+			<ul>
+
+				<li id="li_1">
+					<label class="description" for="nombre">Nombre </label>
+					<div>
+						<input id="nombre" name="nombre" class="element text medium" type="text" maxlength="255"
+							value="" required />
+					</div>
+				</li>
+				<li id="li_3">
+					<label class="description" for="genero">Genero </label>
+					<div>
+						<select class="element select medium" id="genero" name="genero" required>
+							<option value="" selected="selected"></option>
+							<option value="masculino">masculino</option>
+							<option value="femenino">femenino</option>
+							<option value="desconocido">desconocido</option>
+						</select>
+					</div>
+				</li>
+				<li id="li_4">
+					<label class="description" for="origen">origen </label>
+					<div>
+						<select class="element select medium" id="origen" name="origen" required>
+							<option value="" selected="selected"></option>
+							<option value="humano">humano</option>
+							<option value="no humano">no humano</option>
+							<option value="mutante">mutante</option>
+
+						</select>
+					</div>
+				</li>
+				<li id="li_5">
+					<label class="description" for="comienzo">comienzo </label>
+					<div>
+						<select class="element select medium" id="comienzo" name="comienzo" required>
+							<option value="" selected="selected"></option>
+							<option value="obtencion de tecnologia avanzada">obtencion de tecnologia</option>
+							<option value="experimentos cientificos">experimentos cientificos</option>
+							<option value="una historia traumatica">historia traumatica</option>
+							<option value="un accidente experimental">accidente experimental</option>
+
+						</select>
+					</div>
+				</li>
+				<li id="li_6">
+					<label class="description" for="capacidad">capacidad </label>
+					<div>
+						<select class="element select medium" id="capacidad" name="capacidad" required>
+							<option value="" selected="selected"></option>
+							<option value="conocimiento">conocimiento</option>
+							<option value="habilidades atleticas">habilidades atleticas</option>
+							<option value="poderes misticos">poderes misticos</option>
+							<option value="superpoderes">superpoderes</option>
+
+						</select>
+					</div>
+				</li>
+				<li id="li_2">
+					<label class="description" for="descrip">se describe como:</label>
+					<div>
+						<input id="descrip" name="descrip" class="element text medium" type="text" maxlength="255"
+							value="" required />
+					</div>
+				</li>
+
+				<li class="buttons">
+					<input type="hidden" name="form_id" value="89921" />
+
+					<input id="saveForm" class="button_text" type="submit" name="submit" value="Submit" />
+				</li>
+
+				<input id="anzuelo" name="anzuelo" class="element text medium" type="text" maxlength="255"
+					value="defecto" hidden />
+			</ul>
+		</form>
+		<div id="footer"> </div>
+	</div>
+	<img id="bottom" src="{{ url_for('static', filename='css/bottom.png')}}" alt="">
+</body>
+
+</html>

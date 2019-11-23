@@ -1,0 +1,7 @@
+testServer/__init__.py
+testServer/__main__.py
+testServer.egg-info/PKG-INFO
+testServer.egg-info/SOURCES.txt
+testServer.egg-info/dependency_links.txt
+testServer.egg-info/requires.txt
+testServer.egg-info/top_level.txt
