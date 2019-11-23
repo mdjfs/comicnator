@@ -14,5 +14,7 @@ setup(
         "wtforms",
         "flask_sqlalchemy",
         "werkzeug",
+        "netifaces",
+        "psycopg2",
     ],
 )
