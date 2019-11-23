@@ -1,9 +1,0 @@
-setup.py
-Marvel.egg-info/PKG-INFO
-Marvel.egg-info/SOURCES.txt
-Marvel.egg-info/dependency_links.txt
-Marvel.egg-info/requires.txt
-Marvel.egg-info/top_level.txt
-testServer/__init__.py
-testServer/__main__.py
-testServer/form.py
