@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name="Marvel ComicNator",
+    name="MarvelComicNator",
     version="0.0.2",
     description="Marvel Comics",
     author="Marcos de Jesus Fuenmayor Soto",
