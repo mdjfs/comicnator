@@ -1,5 +1,5 @@
-from MarvelComics import app
-from MarvelComics.models import db
+from comicnator import app
+from comicnator.models import db
 
 import netifaces as net
 

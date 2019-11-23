@@ -1,23 +1,22 @@
+import os
+
 from flask import (
     Flask,
+    flash,
+    redirect,
     render_template,
     request,
-    redirect,
-    url_for,
     send_from_directory,
     session,
-    flash
+    url_for,
 )
+from sqlalchemy import create_engine, inspect
+
+from comicnator import form
+from comicnator.config import DevelopmentConfig
+from comicnator.interaccion import Seleccion
+from comicnator.models import User
 from flask_jsglue import JSGlue
-from sqlalchemy import (
-    create_engine,
-    inspect
-)
-import os
-from MarvelComics.interaccion import Seleccion
-from MarvelComics import form
-from MarvelComics.config import DevelopmentConfig
-from MarvelComics.models import User
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -29,7 +28,7 @@ inspector = inspect(engine)
 
 
 def CountRow():
-    r = engine.execute('SELECT COUNT(*) FROM heroes')
+    r = engine.execute("SELECT COUNT(*) FROM heroes")
     a = r.fetchone()
     return a[0]
 
@@ -87,147 +86,127 @@ def favicon():
 
 @app.route("/inter", methods=["GET", "POST"])
 def interaccion():
-    if request.method == 'GET':
-        if 'posicion' in session:
+    if request.method == "GET":
+        if "posicion" in session:
             pass
         else:
-            session['exclusion_fila'] = []
-            session['exclusion_fila'] = fillarray(
-                session['exclusion_fila'],
-                rownumber,
-                False
+            session["exclusion_fila"] = []
+            session["exclusion_fila"] = fillarray(
+                session["exclusion_fila"], rownumber, False
             )
-            session['exclusion_columna'] = []
-            session['exclusion_columna'] = fillarray(
-                session['exclusion_columna'],
-                columnumber,
-                False
+            session["exclusion_columna"] = []
+            session["exclusion_columna"] = fillarray(
+                session["exclusion_columna"], columnumber, False
             )
-            session['probable'] = []
-            session['probable'] = fillarray(
-                session['probable'],
-                rownumber,
-                0.0
+            session["probable"] = []
+            session["probable"] = fillarray(session["probable"], rownumber, 0.0)
+            session["posicion"] = []
+            session["incert"] = False
+            session["posicion"] = Seleccion(
+                session["exclusion_fila"],
+                session["exclusion_columna"],
+                session["incert"],
+                [rownumber, columnumber],
             )
-            session['posicion'] = []
-            session['incert'] = False
-            session['posicion'] = Seleccion(
-                session['exclusion_fila'],
-                session['exclusion_columna'],
-                session['incert'],
-                [rownumber, columnumber]
-            )
-            session['adivino'] = False
-        finish = isfinal(session['probable'])
+            session["adivino"] = False
+        finish = isfinal(session["probable"])
         if finish is True:
-            session['incert'] = HabilitarIncertidumbre(
-                session['exclusion_columna'],
-                session['probable']
+            session["incert"] = HabilitarIncertidumbre(
+                session["exclusion_columna"], session["probable"]
             )
-            if session['incert'] is True:
-                session['probable'] = Quitarprob(
-                    session['probable']
-                )
+            if session["incert"] is True:
+                session["probable"] = Quitarprob(session["probable"])
                 finish = False
-        ver = VerificarExclusion(session['exclusion_columna'])
+        ver = VerificarExclusion(session["exclusion_columna"])
         if finish is False:
-            if session['posicion'] is not None:
+            if session["posicion"] is not None:
                 q = Init(session)
-            elif session['posicion'] is None or ver:
+            elif session["posicion"] is None or ver:
                 q = "No pudimos encontrar tu personaje"
-                session['adivino'] = True
+                session["adivino"] = True
         else:
             if finish is True:
-                q = getperson(session['probable'])
+                q = getperson(session["probable"])
                 if q is not None:
-                    session['adivino'] = True
+                    session["adivino"] = True
                 else:
-                    if session['posicion'] is None or ver:
+                    if session["posicion"] is None or ver:
                         q = Init(session)
                     else:
                         q = "No pudimos encontrar tu personaje"
-                        session['adivino'] = True
+                        session["adivino"] = True
         estado = False
-        estado = session['adivino']
+        estado = session["adivino"]
         if estado is True:
             session.clear()
         device = detect()
         if device == "computer":
-            return render_template("inter.html",
-                                   pregunta=q,
-                                   final=estado)
+            return render_template("inter.html", pregunta=q, final=estado)
         if device == "cellphone":
             return render_template("intercell.html", pregunta=q, final=estado)
         return render_template("unsupported.html")
-    if request.method == 'POST':
+    if request.method == "POST":
         if "volver" in request.form:
             return redirect(url_for("interaccion"))
         if "final" in request.form:
             return redirect(url_for("datos"))
-        if 'posicion' in session:
+        if "posicion" in session:
             if "si" in request.form:
                 exc = exclusion(session, True)
                 prb = Probabilidad(session, True)
-                session['exclusion_fila'] = exc['exclusion_fila']
-                session['exclusion_columna'] = exc['exclusion_columna']
-                session['probable'] = prb['probable']
+                session["exclusion_fila"] = exc["exclusion_fila"]
+                session["exclusion_columna"] = exc["exclusion_columna"]
+                session["probable"] = prb["probable"]
             if "no" in request.form:
                 exc = exclusion(session, False)
                 prb = Probabilidad(session, False)
-                session['exclusion_fila'] = exc['exclusion_fila']
-                session['exclusion_columna'] = exc['exclusion_columna']
-                session['probable'] = prb['probable']
+                session["exclusion_fila"] = exc["exclusion_fila"]
+                session["exclusion_columna"] = exc["exclusion_columna"]
+                session["probable"] = prb["probable"]
             if "no lo se" in request.form:
                 pass
-            finish = isfinal(session['probable'])
+            finish = isfinal(session["probable"])
             if finish is True:
-                session['incert'] = HabilitarIncertidumbre(
-                    session['exclusion_columna'],
-                    session['probable']
+                session["incert"] = HabilitarIncertidumbre(
+                    session["exclusion_columna"], session["probable"]
                 )
-                if session['incert'] is True:
-                    session['probable'] = Quitarprob(
-                        session['probable']
-                    )
-                    print(session['probable'])
+                if session["incert"] is True:
+                    session["probable"] = Quitarprob(session["probable"])
+                    print(session["probable"])
                     finish = False
-            session['posicion'] = Seleccion(
-                session['exclusion_fila'],
-                session['exclusion_columna'],
-                session['incert'],
-                [rownumber, columnumber]
+            session["posicion"] = Seleccion(
+                session["exclusion_fila"],
+                session["exclusion_columna"],
+                session["incert"],
+                [rownumber, columnumber],
             )
-            ver = VerificarExclusion(session['exclusion_columna'])
+            ver = VerificarExclusion(session["exclusion_columna"])
             if finish is False:
-                if session['posicion'] is not None:
+                if session["posicion"] is not None:
                     q = Init(session)
-                elif session['posicion'] is None or ver:
+                elif session["posicion"] is None or ver:
                     q = "No pudimos encontrar tu personaje"
-                    session['adivino'] = True
+                    session["adivino"] = True
             else:
                 if finish is True:
-                    q = getperson(session['probable'])
+                    q = getperson(session["probable"])
                     if q is not None:
-                        session['adivino'] = True
+                        session["adivino"] = True
                     else:
-                        if session['posicion'] is None or ver:
+                        if session["posicion"] is None or ver:
                             q = Init(session)
                         else:
                             q = "No pudimos encontrar tu personaje"
-                            session['adivino'] = True
+                            session["adivino"] = True
             estado = False
-            estado = session['adivino']
+            estado = session["adivino"]
             if estado is True:
                 session.clear()
             device = detect()
             if device == "computer":
-                return render_template("inter.html",
-                                       pregunta=q,
-                                       final=estado)
+                return render_template("inter.html", pregunta=q, final=estado)
             if device == "cellphone":
-                return render_template("intercell.html",
-                                       pregunta=q,
-                                       final=estado)
+                return render_template("intercell.html", pregunta=q, final=estado)
             return render_template("unsupported.html")
 
 
@@ -241,7 +220,7 @@ def datos():
             return render_template("learncell.html")
         return render_template("unsupported.html")
     if request.method == "POST":
-        if request.form.get('anzuelo') == 'defecto':
+        if request.form.get("anzuelo") == "defecto":
             query = "INSERT INTO heroes_learn "
             query += "(nombre_heroes_learn,"
             query += "'es de genero',"
@@ -249,13 +228,13 @@ def datos():
             query += "'empezo con',"
             query += "'tiene como capacidad especial',"
             query += "'se describe como') VALUES"
-            query = query.replace("\'", "\"")
-            query += "('"+request.form.get('nombre')+"','"
-            query += request.form.get('genero')+"','"
-            query += request.form.get('origen')+"','"
-            query += request.form.get('comienzo')+"','"
-            query += request.form.get('capacidad')+"','"
-            query += request.form.get('descrip')+"')"
+            query = query.replace("'", '"')
+            query += "('" + request.form.get("nombre") + "','"
+            query += request.form.get("genero") + "','"
+            query += request.form.get("origen") + "','"
+            query += request.form.get("comienzo") + "','"
+            query += request.form.get("capacidad") + "','"
+            query += request.form.get("descrip") + "')"
             engine.execute(query)
             success_message = "Gracias ! Un administrador"
             success_message += " verificara mi aprendizaje"
@@ -268,18 +247,18 @@ def datos():
         return render_template("unsupported.html")
 
 
-@app.route('/log-learn', methods=["GET", "POST"])
+@app.route("/log-learn", methods=["GET", "POST"])
 def Login():
-    if 'username' not in session:
+    if "username" not in session:
         loginform = form.learnForm(request.form)
         if request.method == "POST" and loginform.validate:
             username = loginform.username.data
             password = loginform.password.data
             user = User.query.filter_by(username=username).first()
             if user is not None and user.verify(password):
-                success_message = "Bienvenido "+username
+                success_message = "Bienvenido " + username
                 flash(success_message)
-                session['username'] = username
+                session["username"] = username
                 return redirect(url_for("admin"))
         return render_template("login.html", form=loginform)
     else:
@@ -287,14 +266,14 @@ def Login():
 
 
 def Init(data):
-    pregunta = Question(data['posicion'])
+    pregunta = Question(data["posicion"])
     return pregunta
 
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
-    if 'username' in session:
-        if 'peticion' not in session:
+    if "username" in session:
+        if "peticion" not in session:
             x = engine.execute("SELECT *FROM heroes_learn")
             lista = x.fetchone()
             llevar = ""
@@ -306,12 +285,12 @@ def admin():
                         llevar += "{}".format(i)
                     else:
                         llevar += "{}.".format(i)
-            session['peticion'] = llevar
-        sugerencia = session['peticion']
+            session["peticion"] = llevar
+        sugerencia = session["peticion"]
         if request.method == "POST":
             if "acepto" in request.form:
-                sugerencia = session['peticion']
-                lista = sugerencia.split('.')
+                sugerencia = session["peticion"]
+                lista = sugerencia.split(".")
                 query = "INSERT INTO heroes "
                 query += "(nombre_heroes,"
                 query += "'es de genero',"
@@ -319,26 +298,26 @@ def admin():
                 query += "'empezo con',"
                 query += "'tiene como capacidad especial',"
                 query += "'se describe como') VALUES"
-                query = query.replace("\'", "\"")
-                query += "('"+lista[1]+"','"
-                query += lista[2]+"','"
-                query += lista[3]+"','"
-                query += lista[4]+"','"
-                query += lista[5]+"','"
-                query += lista[6]+"')"
+                query = query.replace("'", '"')
+                query += "('" + lista[1] + "','"
+                query += lista[2] + "','"
+                query += lista[3] + "','"
+                query += lista[4] + "','"
+                query += lista[5] + "','"
+                query += lista[6] + "')"
                 engine.execute(query)
                 query = "delete from heroes_learn where "
                 query += "id_heroes_learn={}".format(lista[0])
                 engine.execute(query)
-                del session['peticion']
+                del session["peticion"]
                 return redirect(url_for("admin"))
             if "deniego" in request.form:
-                sugerencia = session['peticion']
-                lista = sugerencia.split('.')
+                sugerencia = session["peticion"]
+                lista = sugerencia.split(".")
                 query = "delete from heroes_learn where "
                 query += "id_heroes_learn={}".format(lista[0])
                 engine.execute(query)
-                del session['peticion']
+                del session["peticion"]
                 return redirect(url_for("admin"))
         return render_template("admin.html", query=sugerencia)
     else:
@@ -346,10 +325,10 @@ def admin():
 
 
 def Question(pos):
-    filtro = inspector.get_columns('heroes')
+    filtro = inspector.get_columns("heroes")
     dicc = filtro[pos[0]]
-    columna = dicc['name']
-    r = engine.execute('SELECT "'+dicc['name']+'" from heroes')
+    columna = dicc["name"]
+    r = engine.execute('SELECT "' + dicc["name"] + '" from heroes')
     i = 0
     rowfilter = ""
     for row in r:
@@ -357,22 +336,22 @@ def Question(pos):
         if i == pos[1]:
             rowfilter = row[0]
     fila = rowfilter
-    return "Su personaje "+columna+" "+fila
+    return "Su personaje " + columna + " " + fila
 
 
 def fillarray(array, iterator, valor):
-    for i in range(iterator+1):
+    for i in range(iterator + 1):
         array.append(valor)
     return array
 
 
 def exclusion(data, mode):
-    filtro = inspector.get_columns('heroes')
-    pos = data['posicion']
-    exclusion_fila = data['exclusion_fila']
-    exclusion_columna = data['exclusion_columna']
+    filtro = inspector.get_columns("heroes")
+    pos = data["posicion"]
+    exclusion_fila = data["exclusion_fila"]
+    exclusion_columna = data["exclusion_columna"]
     dicc = filtro[pos[0]]
-    r = engine.execute('SELECT "'+dicc['name']+'" from heroes')
+    r = engine.execute('SELECT "' + dicc["name"] + '" from heroes')
     if mode is True:
         exclusion_columna[pos[0]] = True
         rowfilter = ""
@@ -382,7 +361,7 @@ def exclusion(data, mode):
             if i == pos[1]:
                 rowfilter = row[0]
         i = 0
-        r = engine.execute('SELECT "'+dicc['name']+'" from heroes')
+        r = engine.execute('SELECT "' + dicc["name"] + '" from heroes')
         for row in r:
             i += 1
             if row[0] != rowfilter:
@@ -395,13 +374,13 @@ def exclusion(data, mode):
             if i == pos[1]:
                 rowfilter = row[0]
         i = 0
-        r = engine.execute('SELECT "'+dicc['name']+'" from heroes')
+        r = engine.execute('SELECT "' + dicc["name"] + '" from heroes')
         for row in r:
             i += 1
             if row[0] == rowfilter:
                 exclusion_fila[i] = True
-    data['exclusion_fila'] = exclusion_fila
-    data['exclusion_columna'] = exclusion_columna
+    data["exclusion_fila"] = exclusion_fila
+    data["exclusion_columna"] = exclusion_columna
     return data
 
 
@@ -448,17 +427,13 @@ def Quitarprob(prob):
 
 
 def Probabilidad(data, mode):
-    filtro = inspector.get_columns('heroes')
-    pos = data['posicion']
-    probabilidad = data['probable']
+    filtro = inspector.get_columns("heroes")
+    pos = data["posicion"]
+    probabilidad = data["probable"]
     repitio = []
-    repitio = fillarray(
-        repitio,
-        len(probabilidad) - 1,
-        False,
-    )
+    repitio = fillarray(repitio, len(probabilidad) - 1, False)
     dicc = filtro[pos[0]]
-    r = engine.execute('SELECT "'+dicc['name']+'" from heroes')
+    r = engine.execute('SELECT "' + dicc["name"] + '" from heroes')
     rowfilter = ""
     i = 0
     for row in r:
@@ -467,7 +442,7 @@ def Probabilidad(data, mode):
             rowfilter = row[0]
     i = 0
     repetido = 0
-    r = engine.execute('SELECT "'+dicc['name']+'" from heroes')
+    r = engine.execute('SELECT "' + dicc["name"] + '" from heroes')
     for row in r:
         i += 1
         if row[0] == rowfilter:
@@ -495,7 +470,7 @@ def Probabilidad(data, mode):
                     probabilidad[x] += 40
                 if prob < 20:
                     probabilidad[x] += 10
-    data['probable'] = probabilidad
+    data["probable"] = probabilidad
     return data
 
 
@@ -516,7 +491,7 @@ def getperson(prob):
             paso = True
             break
         i += 1
-    r = engine.execute('SELECT nombre_heroes from heroes')
+    r = engine.execute("SELECT nombre_heroes from heroes")
     rowfilter = ""
     i = 1
     for row in r:
