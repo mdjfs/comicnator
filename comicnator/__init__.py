@@ -19,6 +19,7 @@ from comicnator.models import User
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py")
+
 jsglue = JSGlue(app)
 
 address = "postgresql://marcos:Golf45@localhost:5432/ComicNator"
