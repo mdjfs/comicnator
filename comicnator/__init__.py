@@ -10,16 +10,15 @@ from flask import (
     session,
     url_for,
 )
+from flask_jsglue import JSGlue
 from sqlalchemy import create_engine, inspect
 
 from comicnator import form
-from comicnator.config import DevelopmentConfig
 from comicnator.interaccion import Seleccion
 from comicnator.models import User
-from flask_jsglue import JSGlue
 
-app = Flask(__name__)
-app.config.from_object(DevelopmentConfig)
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_pyfile("config.py")
 jsglue = JSGlue(app)
 
 address = "postgresql://marcos:Golf45@localhost:5432/ComicNator"
