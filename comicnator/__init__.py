@@ -22,7 +22,7 @@ app.config.from_pyfile("config.py")
 
 jsglue = JSGlue(app)
 
-address = "postgresql://marcos:Golf45@localhost:5432/ComicNator"
+address = app.config["SQLALCHEMY_DATABASE_URI"]
 engine = create_engine(address)
 inspector = inspect(engine)
 
