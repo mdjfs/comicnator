@@ -47,77 +47,48 @@ class Comicnator(Flask):
                 device = "cellphone"
         return device
 
-    def index(self):
-        if "redirecc" in request.form:
-            return redirect(url_for("interaccion"))
-        if "go" in request.form:
-            return redirect(url_for("interaccion"))
-        if self.device == "computer":
-            return render_template("index.html")
-        if self.device == "cellphone":
-            return render_template("indexcell.html")
-        return render_template("unsupported.html")
-
-
-
-"""
-    @app.route("/", methods=["GET", "POST"])
-    def index(self):
-        if "redirecc" in request.form:
-            return redirect(url_for("interaccion"))
-            if "go" in request.form:
-                return redirect(url_for("interaccion"))
-            device = self.detect()
-            if device == "computer":
-                return render_template("index.html")
-            if device == "cellphone":
-                return render_template("indexcell.html")
-            return render_template("unsupported.html")
-
-
-        @app.route("/favicon.ico")
-        def favicon(self):
-            return send_from_directory(
-            os.path.join(self.app.root_path, "static"),
-            "favicon.ico",
-            mimetype="image/vnd.microsoft.icon",
-            )
-
-
-        @app.route("/inter", methods=["GET", "POST"])
-        def interaccion(self):
-            if request.method == "GET":
-                if "posicion" in session:
-                    pass
+    def interaccion(self, method, session, form):
+        """ El metodo mas grueso de lo grueso, es decir,
+        xD, se encarga de manejar todo lo que son las preguntas
+        y respuestas """
+        if method == "GET":
+            if "posicion" in session:
+                pass
             else:
                 session["exclusion_fila"] = []
                 session["exclusion_fila"] = self.fillarray(
-                    session["exclusion_fila"], self.rownumber, False
-                )
+                                            session["exclusion_fila"], 
+                                            self.rownumber, 
+                                            False)
                 session["exclusion_columna"] = []
                 session["exclusion_columna"] = self.fillarray(
-                    session["exclusion_columna"], self.columnumber, False
-                )
+                                               session["exclusion_columna"], 
+                                               self.columnumber, 
+                                               False)
                 session["probable"] = []
-                session["probable"] = self.fillarray(session["probable"], self.rownumber, 0.0)
+                session["probable"] = self.fillarray(
+                                      session["probable"], 
+                                      self.rownumber, 
+                                      0.0)
                 session["posicion"] = []
                 session["incert"] = False
                 session["posicion"] = self.Seleccion(
-                session["exclusion_fila"],
-                session["exclusion_columna"],
-                session["incert"],
-                [self.rownumber, self.columnumber],
-                )
+                                      session["exclusion_fila"],
+                                      session["exclusion_columna"],
+                                      session["incert"],
+                                      [self.rownumber, self.columnumber])
                 session["adivino"] = False
             finish = self.isfinal(session["probable"])
             if finish is True:
                 session["incert"] = self.HabilitarIncertidumbre(
-                    session["exclusion_columna"], session["probable"]
-                )
-            if session["incert"] is True:
-                session["probable"] = self.Quitarprob(session["probable"])
-                finish = False
-            ver = self.VerificarExclusion(session["exclusion_columna"])
+                                    session["exclusion_columna"], 
+                                    session["probable"])
+                if session["incert"] is True:
+                    session["probable"] = self.Quitarprob(
+                                          session["probable"])
+                    finish = False
+            ver = self.VerificarExclusion(
+                  session["exclusion_columna"])
             if finish is False:
                 if session["posicion"] is not None:
                     q = self.Init(session)
@@ -127,86 +98,96 @@ class Comicnator(Flask):
             else:
                 if finish is True:
                     q = self.getperson(session["probable"])
-                if q is not None:
-                    session["adivino"] = True
+                    if q is not None:
+                        session["adivino"] = True
                     else:
                         if session["posicion"] is None or ver:
                             q = self.Init(session)
-                    else:
+                        else:
+                            q = "No pudimos encontrar tu personaje"
+                            session["adivino"] = True
+            estado = False
+            estado = session["adivino"]
+            if estado is True:
+                session.clear()
+            return [session, q, estado]
+        if method == "POST":
+            if "posicion" in session:
+                if "si" in form:
+                    exc = self.exclusion(session, True)
+                    prb = self.Probabilidad(session, True)
+                    session["exclusion_fila"] = exc["exclusion_fila"]
+                    session["exclusion_columna"] = exc["exclusion_columna"]
+                    session["probable"] = prb["probable"]
+                if "no" in form:
+                    exc = self.exclusion(session, False)
+                    prb = self.Probabilidad(session, False)
+                    session["exclusion_fila"] = exc["exclusion_fila"]
+                    session["exclusion_columna"] = exc["exclusion_columna"]
+                    session["probable"] = prb["probable"]
+                if "no lo se" in form:
+                    pass
+                finish = self.isfinal(session["probable"])
+                if finish is True:
+                    session["incert"] = self.HabilitarIncertidumbre(
+                                        session["exclusion_columna"], 
+                                        session["probable"])
+                    if session["incert"] is True:
+                        session["probable"] = self.Quitarprob(
+                                              session["probable"])
+                        finish = False
+                session["posicion"] = self.Seleccion(
+                                      session["exclusion_fila"],
+                                      session["exclusion_columna"],
+                                      session["incert"],
+                                      [self.rownumber, self.columnumber])
+                ver = self.VerificarExclusion(session["exclusion_columna"])
+                if finish is False:
+                    if session["posicion"] is not None:
+                        q = self.Init(session)
+                    elif session["posicion"] is None or ver:
                         q = "No pudimos encontrar tu personaje"
                         session["adivino"] = True
+                else:
+                    if finish is True:
+                        q = self.getperson(session["probable"])
+                        if q is not None:
+                            session["adivino"] = True
+                    else:
+                        if session["posicion"] is None or ver:
+                            q = self.Init(session)
+                        else:
+                            q = "No pudimos encontrar tu personaje"
+                            session["adivino"] = True
                 estado = False
                 estado = session["adivino"]
                 if estado is True:
                     session.clear()
-                device = self.detect()
-                if device == "computer":
-                    return render_template("inter.html", pregunta=q, final=estado)
-                if device == "cellphone":
-                    return render_template("intercell.html", pregunta=q, final=estado)
-                return render_template("unsupported.html")
-            if request.method == "POST":
-                if "volver" in request.form:
-                    return redirect(url_for("interaccion"))
-                if "final" in request.form:
-                    return redirect(url_for("datos"))
-                if "posicion" in session:
-                    if "si" in request.form:
-                        exc = self.exclusion(session, True)
-                        prb = self.probabilidad(session, True)
-                        session["exclusion_fila"] = exc["exclusion_fila"]
-                        session["exclusion_columna"] = exc["exclusion_columna"]
-                        session["probable"] = prb["probable"]
-                    if "no" in request.form:
-                        exc = self.exclusion(session, False)
-                        prb = self.probabilidad(session, False)
-                        session["exclusion_fila"] = exc["exclusion_fila"]
-                        session["exclusion_columna"] = exc["exclusion_columna"]
-                        session["probable"] = prb["probable"]
-                    if "no lo se" in request.form:
-                        pass
-                    finish = self.isfinal(session["probable"])
-                    if finish is True:
-                        session["incert"] = self.habilitarIncertidumbre(
-                            session["exclusion_columna"], session["probable"]
-                        )
-                        if session["incert"] is True:
-                            session["probable"] = self.quitarprob(session["probable"])
-                            finish = False
-                    session["posicion"] = self.Seleccion(
-                        session["exclusion_fila"],
-                        session["exclusion_columna"],
-                        session["incert"],
-                        [self.rownumber, self.columnumber],
-                    )
-                    ver = self.verificarExclusion(session["exclusion_columna"])
-                    if finish is False:
-                        if session["posicion"] is not None:
-                            q = self.init(session)
-                        elif session["posicion"] is None or ver:
-                            q = "No pudimos encontrar tu personaje"
-                            session["adivino"] = True
-                    else:
-                        if finish is True:
-                            q = self.getperson(session["probable"])
-                        if q is not None:
-                            session["adivino"] = True
-                        else:
-                            if session["posicion"] is None or ver:
-                                q = self.init(session)
-                            else:
-                                q = "No pudimos encontrar tu personaje"
-                                session["adivino"] = True
-                    estado = False
-                    estado = session["adivino"]
-                    if estado is True:
-                        session.clear()
-                    device = self.detect()
-                    if device == "computer":
-                        return render_template("inter.html", pregunta=q, final=estado)
-                    if device == "cellphone":
-                        return render_template("intercell.html", pregunta=q, final=estado)
-                return render_template("unsupported.html")
+                return [session, q, estado]
+
+    def Init(self, data):
+        """Metodo que se encarga de devolver la pregunta de la
+        posicion en que se encuentra el usuario """
+        pregunta = self.Question(data["posicion"])
+        return pregunta
+
+    def Question(self, pos):
+        """Metodo que se encarga de buscar en la base de datos
+        la posicion en que se encuentra el usuario"""
+        filtro = self.inspector.get_columns("heroes")
+        dicc = filtro[pos[0]]
+        columna = dicc["name"]
+        r = self.engine.execute('SELECT "' + dicc["name"] + '" from heroes')
+        i = 0
+        rowfilter = ""
+        for row in r:
+            i += 1
+            if i == pos[1]:
+                rowfilter = row[0]
+        fila = rowfilter
+        return "Su personaje " + columna + " " + fila
+
+"""
 
 
             @app.route("/learn", methods=["GET", "POST"])
@@ -264,11 +245,6 @@ def Login():
         return "Usted ya esta logueado"
 
 
-def Init(data):
-    pregunta = Question(data["posicion"])
-    return pregunta
-
-
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if "username" in session:
@@ -322,20 +298,6 @@ def admin():
     else:
         return "No esta logueado."
 
-
-def Question(pos):
-    filtro = inspector.get_columns("heroes")
-    dicc = filtro[pos[0]]
-    columna = dicc["name"]
-    r = engine.execute('SELECT "' + dicc["name"] + '" from heroes')
-    i = 0
-    rowfilter = ""
-    for row in r:
-        i += 1
-        if i == pos[1]:
-            rowfilter = row[0]
-    fila = rowfilter
-    return "Su personaje " + columna + " " + fila
 
 
 def fillarray(array, iterator, valor):

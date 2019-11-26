@@ -32,7 +32,24 @@ def create_app():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    app.index()
+    if "redirecc" in request.form:
+        return redirect(url_for("interaccion"))
+    if "go" in request.form:
+        return redirect(url_for("interaccion"))
+    if app.device == "computer":
+        return render_template("index.html")
+    if app.device == "cellphone":
+        return render_template("indexcell.html")
+    return render_template("unsupported.html")
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(
+                os.path.join(app.root_path, "static"),
+                "favicon.ico",
+                mimetype="image/vnd.microsoft.icon",
+                )
 
 
 """
