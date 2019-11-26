@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, redirect, url_for, render_template
 from sqlalchemy import create_engine, inspect
 
 
@@ -46,6 +46,18 @@ class Comicnator(Flask):
             if platform == "iphone" or platform == "android":
                 device = "cellphone"
         return device
+
+    def index(self):
+        if "redirecc" in request.form:
+            return redirect(url_for("interaccion"))
+        if "go" in request.form:
+            return redirect(url_for("interaccion"))
+        if self.device == "computer":
+            return render_template("index.html")
+        if self.device == "cellphone":
+            return render_template("indexcell.html")
+        return render_template("unsupported.html")
+
 
 
 """

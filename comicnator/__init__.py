@@ -30,6 +30,11 @@ def create_app():
     return app
 
 
+@app.route("/", methods=["GET", "POST"])
+def index():
+    app.index()
+
+
 """
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py")
