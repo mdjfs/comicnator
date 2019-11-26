@@ -19,6 +19,9 @@ from comicnator.models import User
 
 from comicnator.comicnator import Comicnator
 
+if __name__ == "__main__":
+    app = create_app()
+
 
 def create_app():
     app = Comicnator(__name__, instance_relative_config=True)

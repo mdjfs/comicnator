@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from sqlalchemy import create_engine, inspect
 
 
@@ -14,6 +14,7 @@ class Comicnator(Flask):
             self.inspector = inspect(self.engine)
             self.rownumber = self.countRow()
             self.columnumber = self.countColumn()
+            self.device = self.device()
 
     def countRow(self):
         """ Metodo que se encarga de contar las Filas
@@ -31,22 +32,8 @@ class Comicnator(Flask):
         a = r.fetchone()
         return a[0]
 
-
-"""
-    def countRow(self):
-        r = self.engine.execute("SELECT COUNT(*) FROM heroes")
-        a = r.fetchone()
-        return a[0]
-
-    def countColumn(self):
-        query = "SELECT COUNT (*) as conteo FROM information_schema.columns"
-        query += " WHERE table_schema = 'public' AND table_name = 'heroes'"
-        r = self.engine.execute(query)
-        a = r.fetchone()
-        return a[0]
-
-
     def detect(self):
+        """ Metodo que se encarga de detectar el dispositivo """
         device = None
         platform = request.user_agent.platform
         if (
@@ -54,13 +41,14 @@ class Comicnator(Flask):
             or platform == "linux"
             or platform == "macos"
             or platform == "ipad"
-            ):
+        ):
             device = "computer"
             if platform == "iphone" or platform == "android":
                 device = "cellphone"
-                return device
+        return device
 
 
+"""
     @app.route("/", methods=["GET", "POST"])
     def index(self):
         if "redirecc" in request.form:
