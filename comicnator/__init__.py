@@ -1,7 +1,6 @@
 import os
 
 from flask import (
-    Flask,
     flash,
     redirect,
     render_template,
@@ -11,10 +10,8 @@ from flask import (
     url_for,
 )
 from flask_jsglue import JSGlue
-from sqlalchemy import create_engine, inspect
 
 from comicnator import form
-from comicnator.interaccion import Seleccion
 from comicnator import database
 
 from comicnator.comicnator import Comicnator
