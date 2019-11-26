@@ -1,9 +1,10 @@
-from comicnator import app
+from comicnator import create_app
 from comicnator.models import db
 
 import netifaces as net
 
 if __name__ == "__main__":
+    app = create_app()
     db.init_app(app)
     with app.app_context():
         db.create_all()
