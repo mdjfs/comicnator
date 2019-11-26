@@ -1,7 +1,13 @@
-from comicnator.__main__ import db
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy()
+
+def init_app(app):
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)

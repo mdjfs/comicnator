@@ -15,23 +15,21 @@ from sqlalchemy import create_engine, inspect
 
 from comicnator import form
 from comicnator.interaccion import Seleccion
-from comicnator.models import User
+from comicnator import database
 
 from comicnator.comicnator import Comicnator
 
-if __name__ == "__main__":
-    app = create_app()
-
-
 def create_app():
     app = Comicnator(__name__, instance_relative_config=True)
-    app.config.from_pyfile("config.py")
     jsglue = JSGlue(app)
+    database.init_app(app)
     return app
 
+app = create_app()
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    app.reconocer(request.user_agent.platform)
     if "redirecc" in request.form:
         return redirect(url_for("interaccion"))
     if "go" in request.form:
@@ -59,15 +57,18 @@ def interaccion():
     if "final" in request.form:
         return redirect(url_for("datos"))
     lista = app.interaccion(request.method, session, request.form)
-    req = lista[0]
-    session["exclusion_fila"] = req["exclusion_fila"]
-    session["exclusion_columna"] = req["exclusion_columna"]
-    session["probable"] = req["probable"]
-    session["posicion"] = req["posicion"]
-    session["incert"] = req["incert"]
-    session["adivino"] = req["adivino"]
     q = lista[1]
     termino = lista[2]
+    if termino is False:
+        req = lista[0]
+        session["exclusion_fila"] = req["exclusion_fila"]
+        session["exclusion_columna"] = req["exclusion_columna"]
+        session["probable"] = req["probable"]
+        session["posicion"] = req["posicion"]
+        session["incert"] = req["incert"]
+        session["adivino"] = req["adivino"]
+    else:
+        session.clear()
     if app.device == "computer":
         return render_template("inter.html", pregunta=q, final=termino)
     if app.device == "cellphone":
@@ -117,7 +118,7 @@ def Login():
         if request.method == "POST" and loginform.validate:
             username = loginform.username.data
             password = loginform.password.data
-            user = User.query.filter_by(username=username).first()
+            user = database.User.query.filter_by(username=username).first()
             if user is not None and user.verify(password):
                 success_message = "Bienvenido " + username
                 flash(success_message)

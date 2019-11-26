@@ -6,16 +6,20 @@ import random
 class Comicnator(Flask):
     """ Clase que contiene todos los metodos de la Aplicacion """
 
-    def __init__(self, __name__, instance_relative_config):
+    def __init__(self, *args, **kwargs):
         """ Metodo init que tiene las variables a usar en la
         Aplicacion """
-        if __name__ == "__main__":
-            address = "SQLALCHEMY_DATABASE_URI"
-            self.engine = create_engine(self.config[address])
-            self.inspector = inspect(self.engine)
-            self.rownumber = self.countRow()
-            self.columnumber = self.countColumn()
-            self.device = self.device()
+        Flask.__init__(self, *args, **kwargs)
+        self.config.from_pyfile("config.py")
+        self.engine = create_engine(
+            self.config["SQLALCHEMY_DATABASE_URI"]
+        )
+        self.inspector = inspect(self.engine)
+        self.rownumber = self.countRow()
+        self.columnumber = self.countColumn()
+    
+    def reconocer(self, platform):
+        self.device = self.detect(platform)
 
     def countRow(self):
         """ Metodo que se encarga de contar las Filas
@@ -33,10 +37,9 @@ class Comicnator(Flask):
         a = r.fetchone()
         return a[0]
 
-    def detect(self):
+    def detect(self, platform):
         """ Metodo que se encarga de detectar el dispositivo """
         device = None
-        platform = request.user_agent.platform
         if (
             platform == "windows"
             or platform == "linux"
