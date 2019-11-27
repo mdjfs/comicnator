@@ -25,3 +25,21 @@ class User(db.Model):
 
     def verify(self, password):
         return check_password_hash(self.password, password)
+
+
+class HeroesMarvel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String, nullable=False)
+    es_de_genero = db.Column('es de genero', db.String, nullable=False)
+    es_de_origen = db.Column('es de origen', db.String, nullable=False)
+    empezo_con = db.Column('empezo con', db.String, nullable=False)
+    capacidad = db.Column('tiene como capacidad especial',
+                          db.String,
+                          nullable=False)
+    describe = db.Column('se describe como', db.String, nullable=False)
+    __table_args__ = (db.UniqueConstraint(
+                        'es de genero',
+                        'es de origen',
+                        'empezo con',
+                        'tiene como capacidad especial',
+                        'se describe como'),)
