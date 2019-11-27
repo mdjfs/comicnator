@@ -16,13 +16,16 @@ from comicnator import database
 
 from comicnator.comicnator import Comicnator
 
+
 def create_app():
     app = Comicnator(__name__, instance_relative_config=True)
     jsglue = JSGlue(app)
     database.init_app(app)
     return app
 
+
 app = create_app()
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -71,6 +74,7 @@ def interaccion():
     if app.device == "cellphone":
         return render_template("intercell.html", pregunta=q, final=termino)
     return render_template("unsupported.html")
+
 
 @app.route("/learn", methods=["GET", "POST"])
 def datos():
@@ -178,5 +182,3 @@ def admin():
         return render_template("admin.html", query=sugerencia)
     else:
         return "No esta logueado."
-
-

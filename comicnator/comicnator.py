@@ -17,7 +17,7 @@ class Comicnator(Flask):
         self.inspector = inspect(self.engine)
         self.rownumber = self.countRow()
         self.columnumber = self.countColumn()
-    
+
     def reconocer(self, platform):
         self.device = self.detect(platform)
 
@@ -61,18 +61,18 @@ class Comicnator(Flask):
             else:
                 session["exclusion_fila"] = []
                 session["exclusion_fila"] = self.fillarray(
-                                            session["exclusion_fila"], 
-                                            self.rownumber, 
+                                            session["exclusion_fila"],
+                                            self.rownumber,
                                             False)
                 session["exclusion_columna"] = []
                 session["exclusion_columna"] = self.fillarray(
-                                               session["exclusion_columna"], 
-                                               self.columnumber, 
+                                               session["exclusion_columna"],
+                                               self.columnumber,
                                                False)
                 session["probable"] = []
                 session["probable"] = self.fillarray(
-                                      session["probable"], 
-                                      self.rownumber, 
+                                      session["probable"],
+                                      self.rownumber,
                                       0.0)
                 session["posicion"] = []
                 session["incert"] = False
@@ -85,7 +85,7 @@ class Comicnator(Flask):
             finish = self.isfinal(session["probable"])
             if finish is True:
                 session["incert"] = self.HabilitarIncertidumbre(
-                                    session["exclusion_columna"], 
+                                    session["exclusion_columna"],
                                     session["probable"])
                 if session["incert"] is True:
                     session["probable"] = self.Quitarprob(
@@ -134,7 +134,7 @@ class Comicnator(Flask):
                 finish = self.isfinal(session["probable"])
                 if finish is True:
                     session["incert"] = self.HabilitarIncertidumbre(
-                                        session["exclusion_columna"], 
+                                        session["exclusion_columna"],
                                         session["probable"])
                     if session["incert"] is True:
                         session["probable"] = self.Quitarprob(
@@ -215,7 +215,8 @@ class Comicnator(Flask):
                 if i == pos[1]:
                     rowfilter = row[0]
             i = 0
-            r = self.engine.execute('SELECT "' + dicc["name"] + '" from heroes')
+            name = dicc["name"]
+            r = self.engine.execute('SELECT "' + name + '" from heroes')
             for row in r:
                 i += 1
                 if row[0] != rowfilter:
@@ -228,7 +229,8 @@ class Comicnator(Flask):
                 if i == pos[1]:
                     rowfilter = row[0]
             i = 0
-            r = self.engine.execute('SELECT "' + dicc["name"] + '" from heroes')
+            name = dicc["name"]
+            r = self.engine.execute('SELECT "' + name + '" from heroes')
             for row in r:
                 i += 1
                 if row[0] == rowfilter:
@@ -237,8 +239,7 @@ class Comicnator(Flask):
         data["exclusion_columna"] = exclusion_columna
         return data
 
-
-    def VerificarExclusion(self,exclusion_columna):
+    def VerificarExclusion(self, exclusion_columna):
         """Metodo que se encarga de verificar si todo no
         esta excluido"""
         j = 0
@@ -250,9 +251,8 @@ class Comicnator(Flask):
         else:
             return False
 
-
     def HabilitarIncertidumbre(self, exclusion_columna, prob):
-        """Metodo que habilita preguntas especificas si las 
+        """Metodo que habilita preguntas especificas si las
         basicas  ya se hicieron todas"""
         j = 0
         excluidos_todos = False
@@ -272,8 +272,7 @@ class Comicnator(Flask):
             repetidos = True
         return repetidos or excluidos_todos
 
-
-    def Quitarprob(self,prob):
+    def Quitarprob(self, prob):
         """Este metodo si encuentra una probabilidad mayor de 100, la baja
         hasta que quede en menos de 100"""
         j = 5
@@ -285,8 +284,7 @@ class Comicnator(Flask):
                     j += 1
         return prob
 
-
-    def Probabilidad(self,data, mode):
+    def Probabilidad(self, data, mode):
         """Este metodo da probabilidades a unos personajes
         u otros dependiendo la respuesta"""
         filtro = self.inspector.get_columns("heroes")
@@ -335,8 +333,7 @@ class Comicnator(Flask):
         data["probable"] = probabilidad
         return data
 
-
-    def isfinal(self,prob):
+    def isfinal(self, prob):
         """Como su nombre lo dice,
         si hay una probabilidad mayor a 100,
         es probable que ya haya adivinado"""
@@ -345,8 +342,7 @@ class Comicnator(Flask):
                 return True
         return False
 
-
-    def getperson(self,prob):
+    def getperson(self, prob):
         """Obtiene el nombre del personaje"""
         i = 0
         its = 1
@@ -369,7 +365,8 @@ class Comicnator(Flask):
         return "Su personaje es " + rowfilter
 
     def Seleccion(self, exclusion_fila, exclusion_columna, incert, numbers):
-        """Metodo que se encarga de seleccionar preguntas evitando exclusiones"""
+        """Metodo que se encarga de
+        seleccionar preguntas evitando exclusiones"""
         i = 0
         seleccion = [0, 0]
         a = random.randint(2, self.columnumber - 2)
