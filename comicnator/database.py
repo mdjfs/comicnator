@@ -30,9 +30,9 @@ class User(db.Model):
 class HeroesMarvel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String, nullable=False)
-    es_de_genero = db.Column('es de genero', db.String, nullable=False)
-    es_de_origen = db.Column('es de origen', db.String, nullable=False)
-    empezo_con = db.Column('empezo con', db.String, nullable=False)
+    genero = db.Column('es de genero', db.String, nullable=False)
+    origen = db.Column('es de origen', db.String, nullable=False)
+    empezo = db.Column('empezo con', db.String, nullable=False)
     capacidad = db.Column('tiene como capacidad especial',
                           db.String,
                           nullable=False)

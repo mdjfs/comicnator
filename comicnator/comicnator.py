@@ -181,11 +181,26 @@ class Comicnator(Flask):
         la posicion en que se encuentra el usuario"""
         filtro = HeroesMarvel.__table__.columns.keys()
         columna = filtro[pos[0]]
-        r = HeroesMarvel.query.filter_by(id=pos[1]).scalar()
-        filtro = [r.id, r.nombre, r.es_de_genero,
-                  r.es_de_origen, r.empezo_con,
-                  r.capacidad, r.describe]
-        fila = filtro[pos[0]]
+        verbos = HeroesMarvel.query.all()
+        i = 0
+        verb = None
+        keys = None
+        for verbo in verbos:
+            if i == pos[1]:
+                verb = verbo.__dict__
+                keys = verb.keys()
+            i += 1
+        columnsattrs = []
+        for name in filtro:
+            for key in keys:
+                if key in name:
+                    asigna = True
+                    for element in columnsattrs:
+                        if element == key:
+                            asigna = False
+                    if asigna:
+                        columnsattrs.append(key)
+        fila = verb[columnsattrs[pos[0]]]
         return "Su personaje " + columna + " " + fila
 
     def fillarray(self, array, iterator, valor):
