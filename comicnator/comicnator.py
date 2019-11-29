@@ -1,6 +1,7 @@
 from flask import Flask
 from sqlalchemy import create_engine, inspect
 import random
+from comicnator.database import User, HeroesMarvel
 
 
 class Comicnator(Flask):
@@ -178,17 +179,13 @@ class Comicnator(Flask):
     def Question(self, pos):
         """Metodo que se encarga de buscar en la base de datos
         la posicion en que se encuentra el usuario"""
-        filtro = self.inspector.get_columns("heroes")
-        dicc = filtro[pos[0]]
-        columna = dicc["name"]
-        r = self.engine.execute('SELECT "' + dicc["name"] + '" from heroes')
-        i = 0
-        rowfilter = ""
-        for row in r:
-            i += 1
-            if i == pos[1]:
-                rowfilter = row[0]
-        fila = rowfilter
+        filtro = HeroesMarvel.__table__.columns.keys()
+        columna = filtro[pos[0]]
+        r = HeroesMarvel.query.filter_by(id=pos[1]).scalar()
+        filtro = [r.id, r.nombre, r.es_de_genero,
+                  r.es_de_origen, r.empezo_con,
+                  r.capacidad, r.describe]
+        fila = filtro[pos[0]]
         return "Su personaje " + columna + " " + fila
 
     def fillarray(self, array, iterator, valor):
@@ -200,12 +197,12 @@ class Comicnator(Flask):
     def exclusion(self, data, mode):
         """Metodo que se encarga de excluir personajes
         para que no salgan preguntas que no tengan que ver"""
-        filtro = self.inspector.get_columns("heroes")
+        filtro = HeroesMarvel.__table__.columns.keys()
         pos = data["posicion"]
         exclusion_fila = data["exclusion_fila"]
         exclusion_columna = data["exclusion_columna"]
-        dicc = filtro[pos[0]]
-        r = self.engine.execute('SELECT "' + dicc["name"] + '" from heroes')
+        n = HeroesMarvel.__tablename__
+        r = self.engine.execute('SELECT "' + filtro[pos[0]] + '" from ' + n)
         if mode is True:
             exclusion_columna[pos[0]] = True
             rowfilter = ""
@@ -215,8 +212,7 @@ class Comicnator(Flask):
                 if i == pos[1]:
                     rowfilter = row[0]
             i = 0
-            name = dicc["name"]
-            r = self.engine.execute('SELECT "' + name + '" from heroes')
+            r = self.engine.execute('SELECT "' + filtro[pos[0]] + '" from ' + n)
             for row in r:
                 i += 1
                 if row[0] != rowfilter:
@@ -229,8 +225,7 @@ class Comicnator(Flask):
                 if i == pos[1]:
                     rowfilter = row[0]
             i = 0
-            name = dicc["name"]
-            r = self.engine.execute('SELECT "' + name + '" from heroes')
+            r = self.engine.execute('SELECT "' + filtro[pos[0]] + '" from ' + n)
             for row in r:
                 i += 1
                 if row[0] == rowfilter:
@@ -287,13 +282,13 @@ class Comicnator(Flask):
     def Probabilidad(self, data, mode):
         """Este metodo da probabilidades a unos personajes
         u otros dependiendo la respuesta"""
-        filtro = self.inspector.get_columns("heroes")
+        filtro = HeroesMarvel.__table__.columns.keys()
+        n = HeroesMarvel.__tablename__
         pos = data["posicion"]
         probabilidad = data["probable"]
         repitio = []
         repitio = self.fillarray(repitio, len(probabilidad) - 1, False)
-        dicc = filtro[pos[0]]
-        r = self.engine.execute('SELECT "' + dicc["name"] + '" from heroes')
+        r = self.engine.execute('SELECT "' + filtro[pos[0]] + '" from ' + n)
         rowfilter = ""
         i = 0
         for row in r:
@@ -302,7 +297,7 @@ class Comicnator(Flask):
                 rowfilter = row[0]
         i = 0
         repetido = 0
-        r = self.engine.execute('SELECT "' + dicc["name"] + '" from heroes')
+        r = self.engine.execute('SELECT "' + filtro[pos[0]] + '" from ' + n)
         for row in r:
             i += 1
             if row[0] == rowfilter:
@@ -353,7 +348,8 @@ class Comicnator(Flask):
                 paso = True
                 break
             i += 1
-        r = self.engine.execute("SELECT nombre_heroes from heroes")
+        entidad = HeroesMarvel.nombre
+        r = HeroesMarvel.query.with_entities(entidad)
         rowfilter = ""
         i = 1
         for row in r:
@@ -391,3 +387,10 @@ class Comicnator(Flask):
                 seleccion = None
                 break
         return seleccion
+
+    def Verificacion(self, username, password):
+        success_message = None
+        user = User.query.filter_by(username=username).first()
+        if user is not None and user.verify(password):
+            success_message = "Bienvenido " + username
+        return success_message

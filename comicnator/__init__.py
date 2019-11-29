@@ -10,10 +10,8 @@ from flask import (
     url_for,
 )
 from flask_jsglue import JSGlue
-
 from comicnator import form
 from comicnator import database
-
 from comicnator.comicnator import Comicnator
 
 
@@ -27,9 +25,13 @@ def create_app():
 app = create_app()
 
 
+@app.before_request
+def reconoce():
+    app.reconocer(request.user_agent.platform)
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
-    app.reconocer(request.user_agent.platform)
     if "redirecc" in request.form:
         return redirect(url_for("interaccion"))
     if "go" in request.form:
@@ -119,10 +121,9 @@ def Login():
         if request.method == "POST" and loginform.validate:
             username = loginform.username.data
             password = loginform.password.data
-            user = database.User.query.filter_by(username=username).first()
-            if user is not None and user.verify(password):
-                success_message = "Bienvenido " + username
-                flash(success_message)
+            success = app.Verificacion(username, password)
+            if success is not None:
+                flash(success)
                 session["username"] = username
                 return redirect(url_for("admin"))
         return render_template("login.html", form=loginform)
