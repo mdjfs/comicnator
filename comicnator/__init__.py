@@ -1,5 +1,4 @@
 import csv
-from flask import url_for
 from flask_jsglue import JSGlue
 from comicnator import database
 from comicnator.comicnator import Comicnator
@@ -17,13 +16,9 @@ def create_app():
 app = create_app()
 
 
-def reset():
-    database.reset(inith(), initu())
-
-
 def inith():
-    urlheroes = url_for("static", filename="init/initheroes.csv")
-    with open(urlheroes) as csvfile:
+    url = app.root_path + app.static_url_path + "/init/initheroes.csv"
+    with open(url) as csvfile:
         read = csv.reader(csvfile, delimiter=",")
         dicc = {}
         i = 0
@@ -37,7 +32,7 @@ def inith():
 
 
 def initu():
-    urluser = url_for("static", filename="init/inituser.csv")
+    urluser = app.root_path + app.static_url_path + "/init/initusers.csv"
     with open(urluser) as csvfile:
         read = csv.reader(csvfile, delimiter=",")
         dicc = {}

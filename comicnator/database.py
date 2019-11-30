@@ -15,12 +15,11 @@ def reset(inith, initu):
     db.drop_all()
     db.create_all()
     dicc = inith[0]
-    i = 0
-    while i < inith[1]:
-        i += 1
+    i = 1
+    while i < inith[1]+1:
         campos = dicc[i]
         heroe = HeroesMarvel(
-                    id=campos[0],
+                    id=i,
                     nombre=campos[1],
                     genero=campos[2],
                     origen=campos[3],
@@ -28,16 +27,16 @@ def reset(inith, initu):
                     capacidad=campos[5],
                     describe=campos[6])
         db.session.add(heroe)
-    i = 0
+        i += 1
+    i = 1
     dicc = initu[0]
     while i < initu[1]:
-        i += 1
         campos = dicc[i]
         user = User(
-                    id=campos[0],
                     username=campos[1],
                     password=campos[2])
         db.session.add(user)
+        i += 1
     db.session.commit()
 
 

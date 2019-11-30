@@ -21,6 +21,17 @@ def create_blueprint():
 bp = create_blueprint()
 
 
+@bp.route("/hardreset")
+def reset():
+    if "username" in session:
+        dataheroe = comicnator.inith()
+        datauser = comicnator.initu()
+        comicnator.database.reset(dataheroe, datauser)
+        return "Listo!"
+    else:
+        return "No esta logueado."
+
+
 @bp.route('/prueba')
 def prueba():
     return "Esto es una prueba!"
