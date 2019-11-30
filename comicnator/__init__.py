@@ -62,6 +62,7 @@ def initu():
     return [dicc, i]
 
 
+@bp.before_request
 def reconoce():
     app.mapeo()
     app.reconocer(request.user_agent.platform)

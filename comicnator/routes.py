@@ -1,5 +1,4 @@
 from flask import Blueprint
-from comicnator import reconoce
 
 
 def create_blueprint():
@@ -8,4 +7,3 @@ def create_blueprint():
 
 
 bp = create_blueprint()
-bp.before_request(reconoce())
