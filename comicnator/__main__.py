@@ -1,4 +1,5 @@
 from comicnator import app
+from comicnator.routes import bp
 import netifaces as net
 
 if __name__ == "__main__":
