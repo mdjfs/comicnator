@@ -11,6 +11,36 @@ def init_app(app):
         db.create_all()
 
 
+def reset(inith, initu):
+    db.drop_all()
+    db.create_all()
+    dicc = inith[0]
+    i = 0
+    while i < inith[1]:
+        i += 1
+        campos = dicc[i]
+        heroe = HeroesMarvel(
+                    id=campos[0],
+                    nombre=campos[1],
+                    genero=campos[2],
+                    origen=campos[3],
+                    empezo=campos[4],
+                    capacidad=campos[5],
+                    describe=campos[6])
+        db.session.add(heroe)
+    i = 0
+    dicc = initu[0]
+    while i < initu[1]:
+        i += 1
+        campos = dicc[i]
+        user = User(
+                    id=campos[0],
+                    username=campos[1],
+                    password=campos[2])
+        db.session.add(user)
+    db.session.commit()
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True)
@@ -61,4 +91,3 @@ class MarvelSugerencias(db.Model):
                         'empezo con',
                         'tiene como capacidad especial',
                         'se describe como'),)
-

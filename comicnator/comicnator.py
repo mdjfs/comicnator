@@ -22,13 +22,11 @@ class Comicnator(Flask):
     def countRow(self):
         """ Metodo que se encarga de contar las Filas
         de la tabla heroes """
-        print(len(HeroesMarvel.query.all()))
-        return 15
+        return len(HeroesMarvel.query.all())
 
     def countColumn(self):
         """ Metodo que se encarga de Contar las columnas
         de la tabla heroes """
-        print(len(HeroesMarvel.__table__.columns.keys()))
         return len(HeroesMarvel.__table__.columns.keys())
 
     def detect(self, platform):

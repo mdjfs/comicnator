@@ -1,4 +1,5 @@
 import os
+import csv
 
 from flask import (
     flash,
@@ -7,16 +8,18 @@ from flask import (
     request,
     send_from_directory,
     session,
-    url_for,
+    url_for
 )
 from flask_jsglue import JSGlue
 from comicnator import form
 from comicnator import database
 from comicnator.comicnator import Comicnator
+from comicnator.routes import bp
 
 
 def create_app():
     app = Comicnator(__name__, instance_relative_config=True)
+    app.register_blueprint(bp)
     jsglue = JSGlue(app)
     database.init_app(app)
     return app
@@ -25,13 +28,46 @@ def create_app():
 app = create_app()
 
 
-@app.before_request
+def reset():
+    database.reset(inith(), initu())
+
+
+def inith():
+    urlheroes = url_for('static', filename='init/initheroes.csv')
+    with open(urlheroes) as csvfile:
+        read = csv.reader(csvfile, delimiter=",")
+        dicc = {}
+        i = 0
+        for row in read:
+            i += 1
+            campos = []
+            for field in row:
+                campos.append(field)
+            dicc[i] = campos
+    return [dicc, i]
+
+
+def initu():
+    urluser = url_for('static', filename='init/inituser.csv')
+    with open(urluser) as csvfile:
+        read = csv.reader(csvfile, delimiter=",")
+        dicc = {}
+        i = 0
+        for row in read:
+            i += 1
+            campos = []
+            for field in row:
+                campos.append(field)
+            dicc[i] = campos
+    return [dicc, i]
+
+
 def reconoce():
     app.mapeo()
     app.reconocer(request.user_agent.platform)
 
 
-@app.route("/", methods=["GET", "POST"])
+@bp.route('/index', methods=['GET', 'POST'])
 def index():
     if "redirecc" in request.form:
         return redirect(url_for("interaccion"))
@@ -44,7 +80,7 @@ def index():
     return render_template("unsupported.html")
 
 
-@app.route("/favicon.ico")
+@bp.route("/favicon.ico")
 def favicon():
     return send_from_directory(
                 os.path.join(app.root_path, "static"),
@@ -53,7 +89,7 @@ def favicon():
                 )
 
 
-@app.route("/inter", methods=["GET", "POST"])
+@bp.route("/inter", methods=["GET", "POST"])
 def interaccion():
     if "volver" in request.form:
         return redirect(url_for("interaccion"))
@@ -79,7 +115,7 @@ def interaccion():
     return render_template("unsupported.html")
 
 
-@app.route("/learn", methods=["GET", "POST"])
+@bp.route("/learn", methods=["GET", "POST"])
 def datos():
     if request.method == "GET":
         if app.device == "computer":
@@ -108,7 +144,7 @@ def datos():
         return render_template("unsupported.html")
 
 
-@app.route("/log-learn", methods=["GET", "POST"])
+@bp.route("/log-learn", methods=["GET", "POST"])
 def Login():
     if "username" not in session:
         loginform = form.learnForm(request.form)
@@ -125,7 +161,7 @@ def Login():
         return "Usted ya esta logueado"
 
 
-@app.route("/admin", methods=["GET", "POST"])
+@bp.route("/admin", methods=["GET", "POST"])
 def admin():
     if "username" in session:
         if "peticion" not in session:
