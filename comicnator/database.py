@@ -43,3 +43,22 @@ class HeroesMarvel(db.Model):
                         'empezo con',
                         'tiene como capacidad especial',
                         'se describe como'),)
+
+
+class MarvelSugerencias(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String, nullable=False)
+    genero = db.Column('es de genero', db.String, nullable=False)
+    origen = db.Column('es de origen', db.String, nullable=False)
+    empezo = db.Column('empezo con', db.String, nullable=False)
+    capacidad = db.Column('tiene como capacidad especial',
+                          db.String,
+                          nullable=False)
+    describe = db.Column('se describe como', db.String, nullable=False)
+    __table_args__ = (db.UniqueConstraint(
+                        'es de genero',
+                        'es de origen',
+                        'empezo con',
+                        'tiene como capacidad especial',
+                        'se describe como'),)
+

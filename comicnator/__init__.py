@@ -27,6 +27,7 @@ app = create_app()
 
 @app.before_request
 def reconoce():
+    app.mapeo()
     app.reconocer(request.user_agent.platform)
 
 
@@ -88,21 +89,14 @@ def datos():
         return render_template("unsupported.html")
     if request.method == "POST":
         if request.form.get("anzuelo") == "defecto":
-            query = "INSERT INTO heroes_learn "
-            query += "(nombre_heroes_learn,"
-            query += "'es de genero',"
-            query += "'es de origen',"
-            query += "'empezo con',"
-            query += "'tiene como capacidad especial',"
-            query += "'se describe como') VALUES"
-            query = query.replace("'", '"')
-            query += "('" + request.form.get("nombre") + "','"
-            query += request.form.get("genero") + "','"
-            query += request.form.get("origen") + "','"
-            query += request.form.get("comienzo") + "','"
-            query += request.form.get("capacidad") + "','"
-            query += request.form.get("descrip") + "')"
-            app.engine.execute(query)
+
+            lista = [0, request.form.get("nombre"),
+                     request.form.get("genero"),
+                     request.form.get("origen"),
+                     request.form.get("comienzo"),
+                     request.form.get("capacidad"),
+                     request.form.get("descrip")]
+            app.InsertarSugerencia(lista)
             success_message = "Gracias ! Un administrador"
             success_message += " verificara mi aprendizaje"
             flash(success_message)
@@ -135,8 +129,7 @@ def Login():
 def admin():
     if "username" in session:
         if "peticion" not in session:
-            x = app.engine.execute("SELECT *FROM heroes_learn")
-            lista = x.fetchone()
+            lista = app.SolicitarSugerencia()
             llevar = ""
             j = 0
             if lista is not None:
@@ -152,32 +145,12 @@ def admin():
             if "acepto" in request.form:
                 sugerencia = session["peticion"]
                 lista = sugerencia.split(".")
-                query = "INSERT INTO heroes "
-                query += "(nombre_heroes,"
-                query += "'es de genero',"
-                query += "'es de origen',"
-                query += "'empezo con',"
-                query += "'tiene como capacidad especial',"
-                query += "'se describe como') VALUES"
-                query = query.replace("'", '"')
-                query += "('" + lista[1] + "','"
-                query += lista[2] + "','"
-                query += lista[3] + "','"
-                query += lista[4] + "','"
-                query += lista[5] + "','"
-                query += lista[6] + "')"
-                app.engine.execute(query)
-                query = "delete from heroes_learn where "
-                query += "id_heroes_learn={}".format(lista[0])
-                app.engine.execute(query)
+                app.Insertar(lista)
+                app.BorrarSugerencia()
                 del session["peticion"]
                 return redirect(url_for("admin"))
             if "deniego" in request.form:
-                sugerencia = session["peticion"]
-                lista = sugerencia.split(".")
-                query = "delete from heroes_learn where "
-                query += "id_heroes_learn={}".format(lista[0])
-                app.engine.execute(query)
+                app.BorrarSugerencia()
                 del session["peticion"]
                 return redirect(url_for("admin"))
         return render_template("admin.html", query=sugerencia)

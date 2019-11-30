@@ -1,7 +1,6 @@
 from flask import Flask
-from sqlalchemy import create_engine, inspect
 import random
-from comicnator.database import User, HeroesMarvel
+from comicnator.database import db, User, HeroesMarvel, MarvelSugerencias
 
 
 class Comicnator(Flask):
@@ -12,10 +11,8 @@ class Comicnator(Flask):
         Aplicacion """
         Flask.__init__(self, *args, **kwargs)
         self.config.from_pyfile("config.py")
-        self.engine = create_engine(
-            self.config["SQLALCHEMY_DATABASE_URI"]
-        )
-        self.inspector = inspect(self.engine)
+
+    def mapeo(self):
         self.rownumber = self.countRow()
         self.columnumber = self.countColumn()
 
@@ -25,18 +22,14 @@ class Comicnator(Flask):
     def countRow(self):
         """ Metodo que se encarga de contar las Filas
         de la tabla heroes """
-        r = self.engine.execute("SELECT COUNT(*) FROM heroes")
-        a = r.fetchone()
-        return a[0]
+        print(len(HeroesMarvel.query.all()))
+        return 15
 
     def countColumn(self):
         """ Metodo que se encarga de Contar las columnas
         de la tabla heroes """
-        query = "SELECT COUNT (*) as conteo FROM information_schema.columns"
-        query += " WHERE table_schema = 'public' AND table_name = 'heroes'"
-        r = self.engine.execute(query)
-        a = r.fetchone()
-        return a[0]
+        print(len(HeroesMarvel.__table__.columns.keys()))
+        return len(HeroesMarvel.__table__.columns.keys())
 
     def detect(self, platform):
         """ Metodo que se encarga de detectar el dispositivo """
@@ -186,10 +179,10 @@ class Comicnator(Flask):
         verb = None
         keys = None
         for verbo in verbos:
+            i += 1
             if i == pos[1]:
                 verb = verbo.__dict__
                 keys = verb.keys()
-            i += 1
         columnsattrs = []
         for name in filtro:
             for key in keys:
@@ -213,11 +206,19 @@ class Comicnator(Flask):
         """Metodo que se encarga de excluir personajes
         para que no salgan preguntas que no tengan que ver"""
         filtro = HeroesMarvel.__table__.columns.keys()
+        verbos = HeroesMarvel.query.all()
         pos = data["posicion"]
+        verb = None
+        r = []
+        for verbo in verbos:
+            verb = verbo.__dict__
+            keys = verb.keys()
+            for key in keys:
+                if key in filtro[pos[0]]:
+                    if key != "id":
+                        r.append(verb[key])
         exclusion_fila = data["exclusion_fila"]
         exclusion_columna = data["exclusion_columna"]
-        n = HeroesMarvel.__tablename__
-        r = self.engine.execute('SELECT "' + filtro[pos[0]] + '" from ' + n)
         if mode is True:
             exclusion_columna[pos[0]] = True
             rowfilter = ""
@@ -225,12 +226,11 @@ class Comicnator(Flask):
             for row in r:
                 i += 1
                 if i == pos[1]:
-                    rowfilter = row[0]
+                    rowfilter = row
             i = 0
-            r = self.engine.execute('SELECT "' + filtro[pos[0]] + '" from ' + n)
             for row in r:
                 i += 1
-                if row[0] != rowfilter:
+                if row != rowfilter:
                     exclusion_fila[i] = True
         else:
             rowfilter = ""
@@ -238,12 +238,11 @@ class Comicnator(Flask):
             for row in r:
                 i += 1
                 if i == pos[1]:
-                    rowfilter = row[0]
+                    rowfilter = row
             i = 0
-            r = self.engine.execute('SELECT "' + filtro[pos[0]] + '" from ' + n)
             for row in r:
                 i += 1
-                if row[0] == rowfilter:
+                if row == rowfilter:
                     exclusion_fila[i] = True
         data["exclusion_fila"] = exclusion_fila
         data["exclusion_columna"] = exclusion_columna
@@ -298,24 +297,31 @@ class Comicnator(Flask):
         """Este metodo da probabilidades a unos personajes
         u otros dependiendo la respuesta"""
         filtro = HeroesMarvel.__table__.columns.keys()
-        n = HeroesMarvel.__tablename__
+        verbos = HeroesMarvel.query.all()
         pos = data["posicion"]
+        verb = None
+        r = []
+        for verbo in verbos:
+            verb = verbo.__dict__
+            keys = verb.keys()
+            for key in keys:
+                if key in filtro[pos[0]]:
+                    if key != "id":
+                        r.append(verb[key])
         probabilidad = data["probable"]
         repitio = []
         repitio = self.fillarray(repitio, len(probabilidad) - 1, False)
-        r = self.engine.execute('SELECT "' + filtro[pos[0]] + '" from ' + n)
         rowfilter = ""
         i = 0
         for row in r:
             i += 1
             if i == pos[1]:
-                rowfilter = row[0]
+                rowfilter = row
         i = 0
         repetido = 0
-        r = self.engine.execute('SELECT "' + filtro[pos[0]] + '" from ' + n)
         for row in r:
             i += 1
-            if row[0] == rowfilter:
+            if row == rowfilter:
                 repetido += 1
                 repitio[i] = True
         filas = self.rownumber
@@ -366,11 +372,11 @@ class Comicnator(Flask):
         entidad = HeroesMarvel.nombre
         r = HeroesMarvel.query.with_entities(entidad)
         rowfilter = ""
-        i = 1
+        j = 0
         for row in r:
-            if i == its:
+            j += 1
+            if j == its:
                 rowfilter = row[0]
-            i += 1
         if paso is False:
             return None
         return "Su personaje es " + rowfilter
@@ -409,3 +415,39 @@ class Comicnator(Flask):
         if user is not None and user.verify(password):
             success_message = "Bienvenido " + username
         return success_message
+
+    def InsertarSugerencia(self, data):
+        Sugerencia = MarvelSugerencias(
+                        nombre=data[1],
+                        genero=data[2],
+                        origen=data[3],
+                        empezo=data[4],
+                        capacidad=data[5],
+                        describe=data[6])
+        db.session.add(Sugerencia)
+        db.session.commit()
+
+    def Insertar(self, data):
+        Heroe = HeroesMarvel(
+                        id=self.rownumber+1,
+                        nombre=data[1],
+                        genero=data[2],
+                        origen=data[3],
+                        empezo=data[4],
+                        capacidad=data[5],
+                        describe=data[6])
+        db.session.add(Heroe)
+        db.session.commit()
+
+    def BorrarSugerencia(self):
+        x = db.session.query(MarvelSugerencias).first()
+        db.session.delete(x)
+        db.session.commit()
+
+    def SolicitarSugerencia(self):
+        x = db.session.query(MarvelSugerencias).first()
+        if x is not None:
+            return [x.id, x.nombre, x.genero, x.origen,
+                    x.empezo, x.capacidad, x.describe]
+        else:
+            return None
