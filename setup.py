@@ -19,6 +19,7 @@ setup(
             "static/css/*.css",
             "static/css/iepngfix.htc",
             "static/js/*.js",
+            "static/init/*.csv"
         ]
     },
     install_requires=[
