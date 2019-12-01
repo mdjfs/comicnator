@@ -1,5 +1,5 @@
 var resultado = document.getElementById('1').innerHTML;
-resultado = resultado.substring(20, resultado.length);
+resultado = resultado.substring(17, resultado.length - 1);
 
 if (!(resultado.indexOf("tu personaje") >= 0)) {
     resultado = resultado.toLowerCase();

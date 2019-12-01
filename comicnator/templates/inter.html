@@ -1,37 +1,35 @@
-{% extends 'base/base.html' %}
+{% extends 'base.html' %}
 
 {% block head %}
-{{ JSGlue.include() }}
+    {{ JSGlue.include() }}
+    <link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='css/inter.css')}}">
 {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='css/inter.css')}}">
-{% if final != true%}
-<h1 class="pregunta">
-    ¿ {{ pregunta }} ?
-</h1>
-<form method="POST">
-    <input id="si" type="submit" name="si" value="SI" class="rainbow">
-    <input id="no" type="submit" name="no" value="NO" class="rainbow">
-    <input id="nose" type="submit" name="no lo se" value="NO LO SE" class="rainbow">
-</form>
-{% endif %}
-{% if final == true %}
-<img id="personaje" onerror="imagenotfound()"></img>
-<h2 id='1'>
-    {{pregunta}}
-</h2>
-<form method="POST">
-    <p id="final">
+    {% if final != true %}
+        <h1 class="pregunta">
+            ¿ {{ pregunta }} ?
+        </h1>
+        <form method="POST">
+            <input id="si" type="submit" name="si" value="SI" class="rainbow">
+            <input id="no" type="submit" name="no" value="NO" class="rainbow">
+            <input id="nose" type="submit" name="no lo se" value="NO LO SE" class="rainbow">
+        </form>
+    {% endif %}
+    {% if final == true %}
+        <img id="personaje" onerror="imagenotfound()" />
+        <h2 id='1'>{{ pregunta }}</h2>
+        <form method="POST">
+            <p id="final"></p>
+            <input id="irfinal" type="submit" name="final" value="" class="text" />
+            <div class="volver">
+                <input type="submit" name="volver" value="<" class="volverbutton"> Volver a jugar
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}
 
-    </p>
-    <input id="irfinal" type="submit" name="final" value="" class="text">
-    <div class="volver">
-        <input type="submit" name="volver" value="<" class="volverbutton">
-        Volver a jugar
-    </div>
-</form>
 
-<script type="text/javascript" src="{{url_for('static',filename='js/images.js')}}"></script>
-{% endif %}
+{% block scripts %}
+    <script type="text/javascript" src="{{url_for('static',filename='js/images.js')}}"></script>
 {% endblock %}

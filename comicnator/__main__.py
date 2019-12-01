@@ -1,6 +1,10 @@
-from comicnator import app
-import netifaces as net
+from comicnator import create_app
+
+
+def run():
+    app = create_app()
+    app.run(host="127.0.0.1", port=8080)
+
 
 if __name__ == "__main__":
-    address_host = net.ifaddresses("wlp2s0")[net.AF_INET][0]["addr"]
-    app.run(host=address_host, port=5000)
+    run()

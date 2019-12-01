@@ -6,7 +6,7 @@ setup(
     description="Marvel Comics",
     author="Marcos de Jesus Fuenmayor Soto",
     author_email="marcos.fuenmayorhtc@gmail.com",
-    packages=["comicnator",],
+    packages=["comicnator"],
     package_data={
         "comicnator": [
             "templates/*.html",
@@ -19,7 +19,7 @@ setup(
             "static/css/*.css",
             "static/css/iepngfix.htc",
             "static/js/*.js",
-            "static/init/*.csv"
+            "static/init/*.csv",
         ]
     },
     install_requires=[
@@ -31,5 +31,6 @@ setup(
         "werkzeug",
         "netifaces",
         "psycopg2",
+        "click",
     ],
 )

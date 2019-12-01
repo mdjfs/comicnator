@@ -1,195 +1,356 @@
-import os
-import csv
+from os import makedirs
+from pathlib import Path
+from random import randint
 
-from flask import (
-    flash,
-    redirect,
-    render_template,
-    request,
-    send_from_directory,
-    session,
-    url_for
-)
+from flask import Flask
 from flask_jsglue import JSGlue
-from comicnator import form
-from comicnator import database
-from comicnator.comicnator import Comicnator
-from comicnator.routes import bp
+
+from comicnator import database, routes
+from comicnator.database import GameSessions, HeroesMarvel, MarvelSugerencias, User, db
 
 
 def create_app():
-    app = Comicnator(__name__, instance_relative_config=True)
-    app.register_blueprint(bp)
-    jsglue = JSGlue(app)
+    app = Comicnator(__name__)
+    try:
+        makedirs(app.instance_path, exist_ok=True)
+    except OSError:
+        pass
+    app.config.from_pyfile("config.py")
+    database_file = Path(app.instance_path, "database.sqlite").absolute()
+    default_conf = {
+        # "SERVER_NAME": "127.0.0.1:8080",
+        "FLASK_ENV": "development",
+        "SECRET_KEY": "secre-key-do-not-hack!!",
+        "SQLALCHEMY_DATABASE_URI": f"sqlite:///{database_file}",
+    }
+    app.config.from_mapping(default_conf)
+    app.register_blueprint(routes.bp)
+    JSGlue(app)
     database.init_app(app)
     return app
 
 
-app = create_app()
+class Comicnator(Flask):
+    """ Clase que contiene todos los metodos de la Aplicacion """
 
+    def __init__(self, *args, **kwargs):
+        """ Metodo init que tiene las variables a usar en la
+        Aplicacion """
+        super().__init__(*args, **kwargs, instance_relative_config=True)
+        self._rownumber = None
+        self._columnumber = None
+        self._rownumber_c = 0
+        self._columnumber_c = 0
 
-def reset():
-    database.reset(inith(), initu())
+    @property
+    def rownumber(self):
+        self._rownumber_c += 1
+        if self._rownumber_c > 100:
+            self._rownumber_c = 0
+            self._rownumber = None
+        if self._rownumber is None:
+            self._rownumber = db.session.query(HeroesMarvel).count()
+        return self._rownumber
 
+    @property
+    def columnumber(self):
+        self._columnumber_c += 1
+        if self._columnumber_c > 100:
+            self._columnumber_c = 0
+            self._columnumber = None
+        if self._columnumber is None:
+            self._columnumber = len(HeroesMarvel.__table__.columns.keys())
+        return self._columnumber
 
-def inith():
-    urlheroes = url_for('static', filename='init/initheroes.csv')
-    with open(urlheroes) as csvfile:
-        read = csv.reader(csvfile, delimiter=",")
-        dicc = {}
-        i = 0
-        for row in read:
-            i += 1
-            campos = []
-            for field in row:
-                campos.append(field)
-            dicc[i] = campos
-    return [dicc, i]
+    def start_game(self):
+        game_session = GameSessions()
+        game_session.exclusion_fila = (False for i in range(self.rownumber))
+        game_session.exclusion_columna = (False for i in range(self.columnumber))
+        game_session.probable = (0.0 for i in range(self.rownumber))
+        game_session.incert = False
+        game_session.adivino = False
+        game_session.posicion = self.seleccion(
+            game_session.exclusion_fila,
+            game_session.exclusion_columna,
+            game_session.incert,
+        )
+        db.session.add(game_session)
+        db.session.commit()
+        return game_session.id
 
+    def interaccion(self, session_id, form):
+        """ El metodo mas grueso de lo grueso, es decir,
+        xD, se encarga de manejar todo lo que son las preguntas
+        y respuestas """
+        game_session = GameSessions.query.filter_by(id=session_id).first()
+        if "si" in form:
+            self.exclusion(game_session, True)
+            self.probabilidad(game_session, True)
+        elif "no" in form:
+            self.exclusion(game_session, False)
+            self.probabilidad(game_session, False)
+        elif "no lo se" in form:
+            pass
+        finish = game_session.is_final
+        if finish:
+            game_session.incert = self.habilitar_incertidumbre(
+                game_session.exclusion_columna, game_session.probable,
+            )
+            if game_session.incert:
+                self.quitar_prob(game_session)
+                finish = False
+        game_session.posicion = self.seleccion(
+            game_session.exclusion_fila,
+            game_session.exclusion_columna,
+            game_session.incert,
+        )
+        ver = self.verificar_exclusion(game_session.exclusion_columna)
+        if finish:
+            question = self.get_person(game_session.probable)
+            if not question and ver:
+                question = "No pudimos encontrar tu personaje"
+            game_session.adivino = True
+        else:
+            if game_session.posicion:
+                question = self.question(game_session.posicion)
+            else:
+                question = "No pudimos encontrar tu personaje"
+                game_session.adivino = True
+        db.session.add(game_session)
+        db.session.commit()
+        return question, game_session.adivino
 
-def initu():
-    urluser = url_for('static', filename='init/inituser.csv')
-    with open(urluser) as csvfile:
-        read = csv.reader(csvfile, delimiter=",")
-        dicc = {}
-        i = 0
-        for row in read:
-            i += 1
-            campos = []
-            for field in row:
-                campos.append(field)
-            dicc[i] = campos
-    return [dicc, i]
+    def question(self, pos):
+        """Metodo que se encarga de buscar en la base de datos
+        la posicion en que se encuentra el usuario"""
+        filtro = HeroesMarvel.__table__.columns.keys()
+        columna = filtro[pos[0]]
+        verbos = HeroesMarvel.query.all()
+        verb = None
+        keys = None
+        for i, verbo in enumerate(verbos):
+            if i == pos[1]:
+                verb = verbo.__dict__
+                keys = verb.keys()
+        columnsattrs = []
+        for name in filtro:
+            for key in keys:
+                if key in name:
+                    asigna = True
+                    for element in columnsattrs:
+                        if element == key:
+                            asigna = False
+                    if asigna:
+                        columnsattrs.append(key)
+        fila = verb[columnsattrs[pos[0]]]
+        return "Su personaje " + columna + " " + fila
 
+    def exclusion(self, game_session, mode):
+        """Metodo que se encarga de excluir personajes
+        para que no salgan preguntas que no tengan que ver"""
+        filtro = HeroesMarvel.__table__.columns.keys()
+        verbos = HeroesMarvel.query.all()
+        pos = game_session.posicion
+        verb = None
+        valores = []
+        for verbo in verbos:
+            verb = verbo.__dict__
+            keys = verb.keys()
+            for key in keys:
+                if key in filtro[pos[0]]:
+                    if key != "id":
+                        valores.append(verb[key])
+        exclusion_fila = list(game_session.exclusion_fila)
+        exclusion_columna = list(game_session.exclusion_columna)
+        if mode is True:
+            exclusion_columna[pos[0]] = True
+            for i, row in enumerate(valores):
+                if i == pos[1]:
+                    rowfilter = row
+            for i, row in enumerate(valores):
+                if row != rowfilter:
+                    exclusion_fila[i] = True
+        else:
+            rowfilter = ""
+            for i, row in enumerate(valores):
+                if i == pos[1]:
+                    rowfilter = row
+            for i, row in enumerate(valores):
+                if row == rowfilter:
+                    exclusion_fila[i] = True
+        game_session.exclusion_fila = exclusion_fila
+        game_session.exclusion_columna = exclusion_columna
 
-@bp.before_request
-def reconoce():
-    app.mapeo()
-    app.reconocer(request.user_agent.platform)
+    def verificar_exclusion(self, exclusion_columna):
+        """Metodo que se encarga de verificar si todo no
+        esta excluido"""
+        j = 0
+        for i in exclusion_columna:
+            if i is True:
+                j += 1
+        if j > 4:
+            return True
+        else:
+            return False
 
+    def habilitar_incertidumbre(self, exclusion_columna, prob):
+        """Metodo que habilita preguntas especificas si las
+        basicas  ya se hicieron todas"""
+        j = 0
+        excluidos_todos = False
+        repetidos = False
+        for i in exclusion_columna:
+            if i is True:
+                j += 1
+        if j == 3:
+            excluidos_todos = True
+        else:
+            excluidos_todos = False
+        j = 0
+        for p in prob:
+            if p > 100:
+                j += 1
+        if j > 1:
+            repetidos = True
+        return repetidos or excluidos_todos
 
-@bp.route('/index', methods=['GET', 'POST'])
-def index():
-    if "redirecc" in request.form:
-        return redirect(url_for("interaccion"))
-    if "go" in request.form:
-        return redirect(url_for("interaccion"))
-    if app.device == "computer":
-        return render_template("index.html")
-    if app.device == "cellphone":
-        return render_template("indexcell.html")
-    return render_template("unsupported.html")
-
-
-@bp.route("/favicon.ico")
-def favicon():
-    return send_from_directory(
-                os.path.join(app.root_path, "static"),
-                "favicon.ico",
-                mimetype="image/vnd.microsoft.icon",
-                )
-
-
-@bp.route("/inter", methods=["GET", "POST"])
-def interaccion():
-    if "volver" in request.form:
-        return redirect(url_for("interaccion"))
-    if "final" in request.form:
-        return redirect(url_for("datos"))
-    lista = app.interaccion(request.method, session, request.form)
-    q = lista[1]
-    termino = lista[2]
-    if termino is False:
-        req = lista[0]
-        session["exclusion_fila"] = req["exclusion_fila"]
-        session["exclusion_columna"] = req["exclusion_columna"]
-        session["probable"] = req["probable"]
-        session["posicion"] = req["posicion"]
-        session["incert"] = req["incert"]
-        session["adivino"] = req["adivino"]
-    else:
-        session.clear()
-    if app.device == "computer":
-        return render_template("inter.html", pregunta=q, final=termino)
-    if app.device == "cellphone":
-        return render_template("intercell.html", pregunta=q, final=termino)
-    return render_template("unsupported.html")
-
-
-@bp.route("/learn", methods=["GET", "POST"])
-def datos():
-    if request.method == "GET":
-        if app.device == "computer":
-            return render_template("form.html")
-        if app.device == "cellphone":
-            return render_template("learncell.html")
-        return render_template("unsupported.html")
-    if request.method == "POST":
-        if request.form.get("anzuelo") == "defecto":
-
-            lista = [0, request.form.get("nombre"),
-                     request.form.get("genero"),
-                     request.form.get("origen"),
-                     request.form.get("comienzo"),
-                     request.form.get("capacidad"),
-                     request.form.get("descrip")]
-            app.InsertarSugerencia(lista)
-            success_message = "Gracias ! Un administrador"
-            success_message += " verificara mi aprendizaje"
-            flash(success_message)
-            return redirect(url_for("index"))
-        if app.device == "computer":
-            return render_template("form.html")
-        if app.device == "cellphone":
-            return render_template("learncell.html")
-        return render_template("unsupported.html")
-
-
-@bp.route("/log-learn", methods=["GET", "POST"])
-def Login():
-    if "username" not in session:
-        loginform = form.learnForm(request.form)
-        if request.method == "POST" and loginform.validate:
-            username = loginform.username.data
-            password = loginform.password.data
-            success = app.Verificacion(username, password)
-            if success is not None:
-                flash(success)
-                session["username"] = username
-                return redirect(url_for("admin"))
-        return render_template("login.html", form=loginform)
-    else:
-        return "Usted ya esta logueado"
-
-
-@bp.route("/admin", methods=["GET", "POST"])
-def admin():
-    if "username" in session:
-        if "peticion" not in session:
-            lista = app.SolicitarSugerencia()
-            llevar = ""
+    def quitar_prob(self, game_session):
+        """Este metodo si encuentra una probabilidad mayor de 100, la baja
+        hasta que quede en menos de 100"""
+        prob = list(game_session.probable)
+        j = 5
+        while j > 1:
             j = 0
-            if lista is not None:
-                for i in lista:
+            for i in range(len(prob)):
+                if prob[i] > 100:
+                    prob[i] -= 20
                     j += 1
-                    if j == len(lista):
-                        llevar += "{}".format(i)
-                    else:
-                        llevar += "{}.".format(i)
-            session["peticion"] = llevar
-        sugerencia = session["peticion"]
-        if request.method == "POST":
-            if "acepto" in request.form:
-                sugerencia = session["peticion"]
-                lista = sugerencia.split(".")
-                app.Insertar(lista)
-                app.BorrarSugerencia()
-                del session["peticion"]
-                return redirect(url_for("admin"))
-            if "deniego" in request.form:
-                app.BorrarSugerencia()
-                del session["peticion"]
-                return redirect(url_for("admin"))
-        return render_template("admin.html", query=sugerencia)
-    else:
-        return "No esta logueado."
+        game_session.probable = prob
+
+    def probabilidad(self, game_session, mode):
+        """Este metodo da probabilidades a unos personajes
+        u otros dependiendo la respuesta"""
+        filtro = HeroesMarvel.__table__.columns.keys()
+        verbos = HeroesMarvel.query.all()
+        pos = game_session.posicion
+        respuestas = []
+        for verbo in verbos:
+            for key, value in verbo.__dict__.items():
+                if key != "id" and key in filtro[pos[0]]:
+                    respuestas.append(value)
+        probabilidad = list(game_session.probable)
+        repitio = [False for i in range(len(probabilidad))]
+        rowfilter = respuestas[pos[1]]
+        repetido = 0
+        for i, row in enumerate(respuestas):
+            if row == rowfilter:
+                repitio[i] = True
+                repetido += 1
+        filas = self.rownumber
+        prob = repetido / filas * 100
+        if mode is True:
+            for x in range(filas):
+                if repitio[x]:
+                    if prob < 10:
+                        probabilidad[x] += 80
+                    if prob > 10 and prob < 30:
+                        probabilidad[x] += 60
+                    if prob > 30 and prob < 60:
+                        probabilidad[x] += 40
+                    if prob > 60 and prob < 100:
+                        probabilidad[x] += 15
+        else:
+            for x in range(filas):
+                if not repitio[x]:
+                    if prob > 50:
+                        probabilidad[x] += 80
+                    if prob > 20 and prob < 50:
+                        probabilidad[x] += 40
+                    if prob < 20:
+                        probabilidad[x] += 10
+        game_session.probable = probabilidad
+
+    def get_person(self, probability):
+        """Obtiene el nombre del personaje"""
+        pos = None
+        for i, prob in enumerate(probability):
+            if prob > 100:
+                pos = i
+                break
+        else:
+            return None
+        for i, heroe in enumerate(HeroesMarvel.query):
+            if i == pos:
+                return "Su personaje es " + heroe.nombre
+
+    def seleccion(self, exclusion_fila, exclusion_columna, incert):
+        """Metodo que se encarga de
+        seleccionar preguntas evitando exclusiones"""
+        i = 0
+        cols = self.columnumber
+        rows = self.rownumber
+        seleccion = [randint(2, cols - 2), randint(0, rows - 1)]
+        while exclusion_columna[seleccion[0]] or exclusion_fila[seleccion[1]]:
+            i = i + 1
+            if incert is False:
+                seleccion = [randint(2, cols - 2), randint(0, rows - 1)]
+            else:
+                seleccion = [cols - 1, randint(0, rows - 1)]
+            if i > 3000:
+                incert = True
+            if i > 20000:
+                seleccion = None
+                break
+        return seleccion
+
+    def verificacion(self, username, password):
+        success_message = None
+        user = User.query.filter_by(username=username).first()
+        if user is not None and user.verify(password):
+            success_message = "Bienvenido " + username
+        return success_message
+
+    def insertar_sugerencia(self, data):
+        Sugerencia = MarvelSugerencias(
+            nombre=data[1],
+            genero=data[2],
+            origen=data[3],
+            empezo=data[4],
+            capacidad=data[5],
+            describe=data[6],
+        )
+        db.session.add(Sugerencia)
+        db.session.commit()
+
+    def insertar(self, data):
+        Heroe = HeroesMarvel(
+            id=self.rownumber + 1,
+            nombre=data[1],
+            genero=data[2],
+            origen=data[3],
+            empezo=data[4],
+            capacidad=data[5],
+            describe=data[6],
+        )
+        db.session.add(Heroe)
+        db.session.commit()
+
+    def borrar_sugerencia(self):
+        sug = MarvelSugerencias.query().first()
+        db.session.delete(sug)
+        db.session.commit()
+
+    def solicitar_sugerencia(self):
+        sug = MarvelSugerencias.query().first()
+        if sug is not None:
+            return [
+                sug.id,
+                sug.nombre,
+                sug.genero,
+                sug.origen,
+                sug.empezo,
+                sug.capacidad,
+                sug.describe,
+            ]
+        else:
+            return None
