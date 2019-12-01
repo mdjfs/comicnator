@@ -8,7 +8,9 @@ from flask import (
     send_from_directory,
     session,
     url_for,
-    Blueprint
+    Blueprint,
+    json,
+    jsonify
 )
 import comicnator
 
@@ -63,6 +65,18 @@ def favicon():
                 "favicon.ico",
                 mimetype="image/vnd.microsoft.icon",
                 )
+
+
+@bp.route("/pruebajson", methods=["POST"])
+def pruebajson():
+    data = request.get_json()
+    print(data['exclusion'])
+    return jsonify(status="success", data=data)
+
+
+@bp.route("/hola")
+def jsonify():
+    return render_template("json.html")
 
 
 @bp.route("/inter", methods=["GET", "POST"])

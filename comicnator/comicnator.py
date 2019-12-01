@@ -39,8 +39,8 @@ class Comicnator(Flask):
             or platform == "ipad"
         ):
             device = "computer"
-            if platform == "iphone" or platform == "android":
-                device = "cellphone"
+        if platform == "iphone" or platform == "android":
+            device = "cellphone"
         return device
 
     def interaccion(self, method, session, form):
