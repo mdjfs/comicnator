@@ -123,10 +123,9 @@ class Comicnator(Flask):
             game_session.exclusion_columna,
             game_session.incert,
         )
-        ver = self.verificar_exclusion(game_session.exclusion_columna)
         if finish:
             question = self.get_person(game_session.probable)
-            if not question and ver:
+            if game_session.posicion is None or question is None:
                 question = "No pudimos encontrar tu personaje"
             game_session.adivino = True
         else:
@@ -199,18 +198,6 @@ class Comicnator(Flask):
                     exclusion_fila[i] = True
         game_session.exclusion_fila = exclusion_fila
         game_session.exclusion_columna = exclusion_columna
-
-    def verificar_exclusion(self, exclusion_columna):
-        """Metodo que se encarga de verificar si todo no
-        esta excluido"""
-        j = 0
-        for i in exclusion_columna:
-            if i is True:
-                j += 1
-        if j > 4:
-            return True
-        else:
-            return False
 
     def habilitar_incertidumbre(self, exclusion_columna, prob):
         """Metodo que habilita preguntas especificas si las
@@ -342,7 +329,6 @@ class Comicnator(Flask):
                 if i > 3000:
                     incert = True
                     # activa la incertidumbre a los 3000 intentos
-        print(seleccion)
         return seleccion
 
     def verificacion(self, username, password):

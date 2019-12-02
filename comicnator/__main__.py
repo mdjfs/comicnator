@@ -3,7 +3,7 @@ from comicnator import create_app
 
 def run():
     app = create_app()
-    app.run(host="192.168.43.140", port=5000)
+    app.run(host="localhost", port=5000)
 
 
 if __name__ == "__main__":
