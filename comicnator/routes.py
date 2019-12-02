@@ -64,10 +64,10 @@ def start_game():
 
 @bp.route("/inter", methods=["GET", "POST"])
 def interaccion():
-    if not session.get("session_id") or "volver" in request.form:
-        return redirect(url_for("comicnator.start_game"))
     if "final" in request.form:
         return redirect(url_for("comicnator.datos"))
+    if not session.get("session_id") or "volver" in request.form:
+        return redirect(url_for("comicnator.start_game"))
     pregunta, termino = current_app.interaccion(session["session_id"], request.form)
     if termino:
         del session["session_id"]
@@ -130,6 +130,9 @@ def login():
 @bp.route("/admin", methods=["GET", "POST"])
 def admin():
     if "username" in session:
+        if "peticion" in session:
+            if session["peticion"] == "":
+                session.pop("peticion")
         if "peticion" not in session:
             lista = current_app.solicitar_sugerencia()
             llevar = ""
@@ -149,11 +152,11 @@ def admin():
                 lista = sugerencia.split(".")
                 current_app.insertar(lista)
                 current_app.borrar_sugerencia()
-                session["peticion"] = None
+                session.pop("peticion")
                 return redirect(url_for("comicnator.admin"))
             if "deniego" in request.form:
                 current_app.borrar_sugerencia()
-                session["peticion"] = None
+                session.pop("peticion")
                 return redirect(url_for("comicnator.admin"))
         return render_template("admin.html", query=sugerencia)
     else:

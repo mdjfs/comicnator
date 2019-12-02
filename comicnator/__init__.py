@@ -83,6 +83,25 @@ class Comicnator(Flask):
         xD, se encarga de manejar todo lo que son las preguntas
         y respuestas """
         game_session = GameSessions.query.filter_by(id=session_id).first()
+        # verifico si no hay nuevos personajes
+        if len(game_session.exclusion_fila) < self.rownumber:
+            diferencia = self.rownumber - len(game_session.exclusion_fila)
+            i = 0
+            lista_exclusion = list(game_session.exclusion_fila)
+            while i < diferencia:
+                lista_exclusion.append(True)
+                i += 1
+                # no se toman en cuenta nuevos personajes en una sesion
+            game_session.exclusion_fila = tuple(lista_exclusion)
+        if len(game_session.probable) < self.rownumber:
+            diferencia = self.rownumber - len(game_session.probable)
+            lista_probable = list(game_session.probable)
+            i = 0
+            while i < diferencia:
+                lista_probable.append(0)
+                i += 1
+                # no se toman en cuenta nuevos personajes en una sesion
+            game_session.probable = tuple(lista_probable)           
         if "si" in form:
             self.exclusion(game_session, True)
             self.probabilidad(game_session, True)
@@ -287,20 +306,43 @@ class Comicnator(Flask):
         """Metodo que se encarga de
         seleccionar preguntas evitando exclusiones"""
         i = 0
-        cols = self.columnumber
-        rows = self.rownumber
-        seleccion = [randint(2, cols - 2), randint(0, rows - 1)]
-        while exclusion_columna[seleccion[0]] or exclusion_fila[seleccion[1]]:
-            i = i + 1
-            if incert is False:
-                seleccion = [randint(2, cols - 2), randint(0, rows - 1)]
-            else:
-                seleccion = [cols - 1, randint(0, rows - 1)]
-            if i > 3000:
-                incert = True
-            if i > 20000:
-                seleccion = None
-                break
+        cols = self.columnumber - 1
+        rows = self.rownumber - 1
+        initcols = 2
+        # debe saltarse id y nombre
+        limitcols = cols - 1
+        # no puede tomar la incertidumbre
+        verificar_seleccion_col = initcols
+        excepcion_seleccion_col = True
+        excepcion_seleccion_row = True
+        seleccion = None
+        while verificar_seleccion_col <= cols:
+            verificar_seleccion_row = 0
+            while verificar_seleccion_row < rows:
+                seleccion = [verificar_seleccion_col,
+                             verificar_seleccion_row]
+                if exclusion_columna[seleccion[0]] is False:
+                    excepcion_seleccion_col = False
+                if exclusion_fila[seleccion[1]] is False:
+                    excepcion_seleccion_row = False
+                verificar_seleccion_row += 1
+            verificar_seleccion_col += 1
+        if excepcion_seleccion_col or excepcion_seleccion_row:
+            seleccion = None
+        else:
+            seleccion = [randint(initcols, limitcols), randint(0, rows)]
+            while exclusion_columna[seleccion[0]] or exclusion_fila[seleccion[1]]:
+                i = i + 1
+                if incert is False:
+                    seleccion = [randint(initcols, limitcols),
+                                 randint(0, rows)]
+                else:
+                    seleccion = [cols, randint(0, rows)]
+                    # toma la incertidumbre
+                if i > 3000:
+                    incert = True
+                    # activa la incertidumbre a los 3000 intentos
+        print(seleccion)
         return seleccion
 
     def verificacion(self, username, password):
@@ -334,14 +376,15 @@ class Comicnator(Flask):
         )
         db.session.add(Heroe)
         db.session.commit()
+        self._rownumber_c += 100
 
     def borrar_sugerencia(self):
-        sug = MarvelSugerencias.query().first()
+        sug = db.session.query(MarvelSugerencias).first()
         db.session.delete(sug)
         db.session.commit()
 
     def solicitar_sugerencia(self):
-        sug = MarvelSugerencias.query().first()
+        sug = db.session.query(MarvelSugerencias).first()
         if sug is not None:
             return [
                 sug.id,

@@ -1,7 +1,7 @@
 var resultado = document.getElementById('1').innerHTML;
-resultado = resultado.substring(17, resultado.length - 1);
 
 if (!(resultado.indexOf("tu personaje") >= 0)) {
+    resultado = resultado.substring(16, resultado.length);
     resultado = resultado.toLowerCase();
     resultado = resultado.replace(/ /g, "");
     document.getElementById("personaje").src = Flask.url_for("static", { "filename": resultado + ".jpg" });
