@@ -6,7 +6,7 @@ from flask import Flask
 from flask_jsglue import JSGlue
 
 from comicnator import database, routes
-from comicnator.database import GameSessions, HeroesMarvel, MarvelSugerencias, User, db
+from comicnator.database import GameSessions, HeroesMarvel, MarvelSugerencias, User, db, login
 
 
 def create_app():
@@ -383,3 +383,7 @@ class Comicnator(Flask):
             ]
         else:
             return None
+
+    def return_user(self, username, password):
+        user = User.query.filter_by(username=username).first()
+        return user

@@ -6,14 +6,30 @@ import click
 from flask import current_app
 from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
+login = LoginManager()
 db = SQLAlchemy()
 
 
 def init_app(app):
     db.init_app(app)
+    login.init_app(app)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(easter_egg)
+
+
+@login.user_loader
+def load_user(user_id):
+    return User.query.filter_by(id=user_id).first()
+
+
+@click.command("easteregg")
+@with_appcontext
+def easter_egg():
+    """ Wow, how do you find this ?? """
+    print("hola.. je je")
 
 
 @click.command("reset-db")
@@ -34,7 +50,7 @@ def init_db_command():
     click.echo("Initialized the db.")
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "User"
 
     id = db.Column(db.Integer, primary_key=True)

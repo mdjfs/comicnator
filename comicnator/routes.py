@@ -12,6 +12,8 @@ from flask import (
     url_for,
 )
 
+from flask_login import login_user, login_required
+
 # from comicnator.database import db, GameSessions
 
 from comicnator.forms import learnForm
@@ -119,6 +121,8 @@ def login():
             password = loginform.password.data
             success = current_app.verificacion(username, password)
             if success is not None:
+                object_user = current_app.return_user(username, password)
+                login_user(object_user)
                 flash(success)
                 session["username"] = username
                 return redirect(url_for("comicnator.admin"))
@@ -128,36 +132,34 @@ def login():
 
 
 @bp.route("/admin", methods=["GET", "POST"])
+@login_required
 def admin():
-    if "username" in session:
-        if "peticion" in session:
-            if session["peticion"] == "":
-                session.pop("peticion")
-        if "peticion" not in session:
-            lista = current_app.solicitar_sugerencia()
-            llevar = ""
-            j = 0
-            if lista is not None:
-                for i in lista:
-                    j += 1
-                    if j == len(lista):
-                        llevar += "{}".format(i)
-                    else:
-                        llevar += "{}.".format(i)
-            session["peticion"] = llevar
-        sugerencia = session["peticion"]
-        if request.method == "POST":
-            if "acepto" in request.form:
-                sugerencia = session["peticion"]
-                lista = sugerencia.split(".")
-                current_app.insertar(lista)
-                current_app.borrar_sugerencia()
-                session.pop("peticion")
-                return redirect(url_for("comicnator.admin"))
-            if "deniego" in request.form:
-                current_app.borrar_sugerencia()
-                session.pop("peticion")
-                return redirect(url_for("comicnator.admin"))
-        return render_template("admin.html", query=sugerencia)
-    else:
-        return "No esta logueado."
+    if "peticion" in session:
+        if session["peticion"] == "":
+            session.pop("peticion")
+    if "peticion" not in session:
+        lista = current_app.solicitar_sugerencia()
+        llevar = ""
+        j = 0
+        if lista is not None:
+            for i in lista:
+                j += 1
+                if j == len(lista):
+                    llevar += "{}".format(i)
+                else:
+                    llevar += "{}.".format(i)
+        session["peticion"] = llevar
+    sugerencia = session["peticion"]
+    if request.method == "POST":
+        if "acepto" in request.form:
+            sugerencia = session["peticion"]
+            lista = sugerencia.split(".")
+            current_app.insertar(lista)
+            current_app.borrar_sugerencia()
+            session.pop("peticion")
+            return redirect(url_for("comicnator.admin"))
+        if "deniego" in request.form:
+            current_app.borrar_sugerencia()
+            session.pop("peticion")
+            return redirect(url_for("comicnator.admin"))
+    return render_template("admin.html", query=sugerencia)
