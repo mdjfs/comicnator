@@ -40,8 +40,9 @@ def init_db_command():
     db.create_all()
     for table in (User, HeroesMarvel):
         init_file = Path(
-            current_app.root_path, "initialization_data", f"{table.__tablename__}.csv"
-        )
+            current_app.root_path,
+            "initialization_data",
+            f"{table.__tablename__}.csv")
         with open(init_file) as file:
             reader = DictReader(file)
             for row in reader:
@@ -88,7 +89,8 @@ class HeroesMarvel(db.Model):
     genero = db.Column("es de genero", db.String, nullable=False)
     origen = db.Column("es de origen", db.String, nullable=False)
     empezo = db.Column("empezo con", db.String, nullable=False)
-    capacidad = db.Column("tiene como capacidad especial", db.String, nullable=False)
+    capacidad = db.Column("tiene como capacidad especial", db.String,
+                          nullable=False)
     describe = db.Column("se describe como", db.String, nullable=False)
 
     def __repr__(self):
@@ -101,7 +103,8 @@ class MarvelSugerencias(db.Model):
     genero = db.Column("es de genero", db.String, nullable=False)
     origen = db.Column("es de origen", db.String, nullable=False)
     empezo = db.Column("empezo con", db.String, nullable=False)
-    capacidad = db.Column("tiene como capacidad especial", db.String, nullable=False)
+    capacidad = db.Column("tiene como capacidad especial", db.String,
+                          nullable=False)
     describe = db.Column("se describe como", db.String, nullable=False)
     __table_args__ = (
         db.UniqueConstraint(

@@ -6,7 +6,12 @@ from flask import Flask
 from flask_jsglue import JSGlue
 
 from comicnator import database, routes
-from comicnator.database import GameSessions, HeroesMarvel, MarvelSugerencias, User, db, login
+from comicnator.database import (
+    GameSessions,
+    HeroesMarvel,
+    MarvelSugerencias,
+    User,
+    db)
 
 
 def create_app():
@@ -65,7 +70,8 @@ class Comicnator(Flask):
     def start_game(self):
         game_session = GameSessions()
         game_session.exclusion_fila = (False for i in range(self.rownumber))
-        game_session.exclusion_columna = (False for i in range(self.columnumber))
+        game_session.exclusion_columna = (False for i in
+                                          range(self.columnumber))
         game_session.probable = (0.0 for i in range(self.rownumber))
         game_session.incert = False
         game_session.adivino = False
@@ -101,7 +107,7 @@ class Comicnator(Flask):
                 lista_probable.append(0)
                 i += 1
                 # no se toman en cuenta nuevos personajes en una sesion
-            game_session.probable = tuple(lista_probable)           
+            game_session.probable = tuple(lista_probable)
         if "si" in form:
             self.exclusion(game_session, True)
             self.probabilidad(game_session, True)
@@ -318,7 +324,8 @@ class Comicnator(Flask):
             seleccion = None
         else:
             seleccion = [randint(initcols, limitcols), randint(0, rows)]
-            while exclusion_columna[seleccion[0]] or exclusion_fila[seleccion[1]]:
+            while (exclusion_columna[seleccion[0]] or
+                   exclusion_fila[seleccion[1]]):
                 i = i + 1
                 if incert is False:
                     seleccion = [randint(initcols, limitcols),
