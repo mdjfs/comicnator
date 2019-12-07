@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="MarvelComicNator",
-    version="0.0.4",
+    version="0.0.5",
     description="Marvel Comics",
     author="Marcos de Jesus Fuenmayor Soto",
     author_email="marcos.fuenmayorhtc@gmail.com",
@@ -26,7 +26,6 @@ setup(
         "flask",
         "flask-sqlalchemy",
         "flask-login",
-        "flask_jsglue",
         "wtforms",
         "flask_sqlalchemy",
         "werkzeug",

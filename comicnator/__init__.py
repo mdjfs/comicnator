@@ -3,7 +3,6 @@ from pathlib import Path
 from random import randint
 
 from flask import Flask
-from flask_jsglue import JSGlue
 
 from comicnator import database, routes
 from comicnator.database import GameSessions, HeroesMarvel, MarvelSugerencias, User, db
@@ -22,7 +21,6 @@ def create_app():
     }
     app.config.from_mapping(default_conf)
     app.config.from_pyfile("config.py", silent=True)
-    JSGlue(app)
     database.init_app(app)
     app.register_blueprint(routes.bp)
     return app
