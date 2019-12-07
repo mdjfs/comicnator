@@ -19,14 +19,15 @@
 </head>
 
 <body>
-    <img id="ayuda" src="{{url_for('static',filename='css/help.png')}}" onclick="information()" />
+    <img id="ayuda" src="{{ url_for('static',filename='css/help.png') }}" onclick="information()" />
     <div class="content">
         {% block content %}{% endblock %}
     </div>
     <script>
-        BASE_URL = '/comicnator';
+        BASE_URL = {{ url_for('static', filename='') }};
         function url_for_static(filename) {
-            return BASE_URL + Flask.url_for("static", { "filename": filename });
+            {# return BASE_URL + Flask.url_for("static", { "filename": filename }); #}
+            return BASE_URL + filename;
         }
     </script>
     {% block scripts %}{% endblock %}
