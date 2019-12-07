@@ -1,0 +1,30 @@
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='css/estilos.css')}}">
+    {% with message = get_flashed_messages() %}
+        {% if message %}
+            <ul>
+                {% for messages in message %}
+                <div class="notificacion">
+                    {{messages}}
+                </div>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <title>ComicNator</title>
+    {% block head %} {% endblock %}
+    <script type="text/javascript" src="{{url_for('static',filename='js/information.js')}}"></script>
+</head>
+
+<body>
+    <img id="ayuda" src="{{url_for('static',filename='css/help.png')}}" onclick="information()" />
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+    {% block scripts %}{% endblock %}
+</body>
+
+
+</html>

@@ -1,0 +1,9 @@
+<<<<<<< HEAD:comicnator/static/init/initusers.csv
+1,marcos,pbkdf2:sha256:150000$9Pgsp4Ug$ea2b8ece9dc64ae5eaa4861a1a300ad6350b38f00648c710384e0d2906fea41c
+2,wolfang,pbkdf2:sha256:150000$imuEj9Is$7d696b5bb5585f0ab79dd3a32a5c905f1e865671420668b347f41e6ddd5d58ac
+=======
+id,username,password
+1,"marcos","pbkdf2:sha256:150000$9Pgsp4Ug$ea2b8ece9dc64ae5eaa4861a1a300ad6350b38f00648c710384e0d2906fea41c"
+2,"wolfang","pbkdf2:sha256:150000$imuEj9Is$7d696b5bb5585f0ab79dd3a32a5c905f1e865671420668b347f41e6ddd5d58ac"
+>>>>>>> development:comicnator/initialization_data/User.csv
+

@@ -2,11 +2,11 @@ from setuptools import setup
 
 setup(
     name="MarvelComicNator",
-    version="0.0.3",
+    version="0.0.4",
     description="Marvel Comics",
     author="Marcos de Jesus Fuenmayor Soto",
     author_email="marcos.fuenmayorhtc@gmail.com",
-    packages=["comicnator",],
+    packages=["comicnator"],
     package_data={
         "comicnator": [
             "templates/*.html",
@@ -19,17 +19,17 @@ setup(
             "static/css/*.css",
             "static/css/iepngfix.htc",
             "static/js/*.js",
-            "static/init/*.csv"
+            "static/init/*.csv",
         ]
     },
     install_requires=[
         "flask",
         "flask-sqlalchemy",
+        "flask-login",
         "flask_jsglue",
         "wtforms",
         "flask_sqlalchemy",
         "werkzeug",
-        "netifaces",
-        "psycopg2",
+        "click",
     ],
 )
