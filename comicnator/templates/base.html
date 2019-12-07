@@ -23,11 +23,11 @@
     <div class="content">
         {% block content %}{% endblock %}
     </div>
-    <script>
-        BASE_URL = {{ url_for('static', filename='') }};
+    <script type="text/javascript">
+        const BASE_URL = "{{ url_for('static', filename='') }}";
         function url_for_static(filename) {
             return BASE_URL + filename;
-        }
+        };
     </script>
     {% block scripts %}{% endblock %}
 </body>
