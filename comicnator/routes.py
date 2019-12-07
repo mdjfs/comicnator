@@ -1,5 +1,6 @@
 import os
 
+from comicnator.forms import learnForm
 from flask import (
     Blueprint,
     current_app,
@@ -11,12 +12,7 @@ from flask import (
     session,
     url_for,
 )
-
-from flask_login import login_user, login_required
-
-# from comicnator.database import db, GameSessions
-
-from comicnator.forms import learnForm
+from flask_login import login_required, login_user
 
 DEVICES = {
     "windows": "computer",
