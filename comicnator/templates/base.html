@@ -23,6 +23,12 @@
     <div class="content">
         {% block content %}{% endblock %}
     </div>
+    <script>
+        BASE_URL = '/comicnator';
+        function url_for_static(filename) {
+            return BASE_URL + Flask.url_for("static", { "filename": filename });
+        }
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 
