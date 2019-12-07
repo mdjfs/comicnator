@@ -15,7 +15,7 @@
     {% endwith %}
     <title>ComicNator</title>
     {% block head %} {% endblock %}
-    <script type="text/javascript" src="{{url_for('static',filename='js/information.js')}}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/information.js') }}"></script>
 </head>
 
 <body>
@@ -24,6 +24,7 @@
         {% block content %}{% endblock %}
     </div>
     <script>
+        BASE_URL = {{ url_for('static', filename='') }};
         function url_for_static(filename) {
             return BASE_URL + filename;
         }
