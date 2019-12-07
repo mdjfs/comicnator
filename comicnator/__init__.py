@@ -15,19 +15,16 @@ def create_app():
         makedirs(app.instance_path, exist_ok=True)
     except OSError:
         pass
-    app.config.from_pyfile("config.py")
     database_file = Path(app.instance_path, "database.sqlite").absolute()
     default_conf = {
-        # "SERVER_NAME": "127.0.0.1:8080",
-        "FLASK_ENV": "development",
-        "SECRET_KEY": "secre-key-do-not-hack!!",
+        "SECRET_KEY": "secret-key-do-not-hack!!",
         "SQLALCHEMY_DATABASE_URI": f"sqlite:///{database_file}",
     }
     app.config.from_mapping(default_conf)
-    app.register_blueprint(routes.bp)
+    app.config.from_pyfile("config.py", silent=True)
     JSGlue(app)
     database.init_app(app)
-    app.register_blueprint(bp)
+    app.register_blueprint(routes.bp)
     return app
 
 
