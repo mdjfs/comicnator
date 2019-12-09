@@ -291,6 +291,8 @@ class Comicnator(Flask):
         i = 0
         cols = self.columnumber - 1
         rows = self.rownumber - 1
+        max_searches = round(rows / 15 * 500)
+        max_incert = round(rows / 15 * 300)
         initcols = 2
         # debe saltarse id y nombre
         limitcols = cols - 1
@@ -320,10 +322,10 @@ class Comicnator(Flask):
                 else:
                     seleccion = [cols, randint(0, rows)]
                     # toma la incertidumbre
-                if i > 300:
+                if i > max_incert:
                     incert = True
                     # activa la incertidumbre a los 3000 intentos
-                if i > 500:
+                if i > max_searches:
                     break
         return seleccion
 
