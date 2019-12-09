@@ -12,9 +12,7 @@
 {% if final == true %}
 <div class="cuadro">
     <img id="personaje" onerror="imagenotfound()"></img>
-    <h2 id='1'>
-        {{pregunta}}
-    </h2>
+    <h2 id='1'>{{pregunta}}</h2>
     <form method="POST">
         <p id="final">
 
@@ -25,7 +23,7 @@
             Volver a jugar
         </div>
     </form>
-    <script type="text/javascript" src="{{url_for('static',filename='js/imagescell.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static',filename='js/images.js')}}"></script>
 </div>
 {% endif %}
 {%endblock%}
