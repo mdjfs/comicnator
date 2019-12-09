@@ -303,7 +303,7 @@ class Comicnator(Flask):
         seleccion = None
         while verificar_seleccion_col <= cols:
             verificar_seleccion_row = 0
-            while verificar_seleccion_row < rows:
+            while verificar_seleccion_row <= rows:
                 seleccion = [verificar_seleccion_col, verificar_seleccion_row]
                 if exclusion_columna[seleccion[0]] is False:
                     excepcion_seleccion_col = False
