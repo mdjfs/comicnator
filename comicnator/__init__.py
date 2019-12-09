@@ -197,7 +197,7 @@ class Comicnator(Flask):
 
     def habilitar_incertidumbre(self, exclusion_columna, prob):
         """Metodo que habilita preguntas especificas si las
-        basicas  ya se hicieron todas"""
+        basicas ya se hicieron todas"""
         j = 0
         excluidos_todos = False
         repetidos = False
@@ -320,9 +320,11 @@ class Comicnator(Flask):
                 else:
                     seleccion = [cols, randint(0, rows)]
                     # toma la incertidumbre
-                if i > 3000:
+                if i > 300:
                     incert = True
                     # activa la incertidumbre a los 3000 intentos
+                if i > 500:
+                    break
         return seleccion
 
     def verificacion(self, username, password):
