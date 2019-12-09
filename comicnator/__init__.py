@@ -59,18 +59,19 @@ class Comicnator(Flask):
         return self._columnumber
 
     def start_game(self):
-        game_session = GameSessions()
-        game_session.exclusion_fila = (False for i in range(self.rownumber))
-        game_session.exclusion_columna = (False for i in range(self.columnumber))
-        game_session.probable = (0.0 for i in range(self.rownumber))
-        game_session.incert = False
-        game_session.adivino = False
-        game_session.posicion = self.seleccion(
-            game_session.exclusion_fila,
-            game_session.exclusion_columna,
-            game_session.incert,
-        )
-        db.session.add(game_session)
+        with db.session.no_autoflush:
+            game_session = GameSessions()
+            game_session.exclusion_fila = (False for i in range(self.rownumber))
+            game_session.exclusion_columna = (False for i in range(self.columnumber))
+            game_session.probable = (0.0 for i in range(self.rownumber))
+            game_session.incert = False
+            game_session.adivino = False
+            game_session.posicion = self.seleccion(
+                game_session.exclusion_fila,
+                game_session.exclusion_columna,
+                game_session.incert,
+            )
+            db.session.add(game_session)
         db.session.commit()
         return game_session.id
 
@@ -79,58 +80,59 @@ class Comicnator(Flask):
         xD, se encarga de manejar todo lo que son las preguntas
         y respuestas """
         game_session = GameSessions.query.filter_by(id=session_id).first()
-        # verifico si no hay nuevos personajes
-        if len(game_session.exclusion_fila) < self.rownumber:
-            diferencia = self.rownumber - len(game_session.exclusion_fila)
-            i = 0
-            lista_exclusion = list(game_session.exclusion_fila)
-            while i < diferencia:
-                lista_exclusion.append(True)
-                i += 1
-                # no se toman en cuenta nuevos personajes en una sesion
-            game_session.exclusion_fila = tuple(lista_exclusion)
-        if len(game_session.probable) < self.rownumber:
-            diferencia = self.rownumber - len(game_session.probable)
-            lista_probable = list(game_session.probable)
-            i = 0
-            while i < diferencia:
-                lista_probable.append(0)
-                i += 1
-                # no se toman en cuenta nuevos personajes en una sesion
-            game_session.probable = tuple(lista_probable)
-        if "si" in form:
-            self.exclusion(game_session, True)
-            self.probabilidad(game_session, True)
-        elif "no" in form:
-            self.exclusion(game_session, False)
-            self.probabilidad(game_session, False)
-        elif "no lo se" in form:
-            pass
-        finish = game_session.is_final
-        if finish:
-            game_session.incert = self.habilitar_incertidumbre(
-                game_session.exclusion_columna, game_session.probable,
+        with db.session.no_autoflush:
+            # verifico si no hay nuevos personajes
+            if len(game_session.exclusion_fila) < self.rownumber:
+                diferencia = self.rownumber - len(game_session.exclusion_fila)
+                i = 0
+                lista_exclusion = list(game_session.exclusion_fila)
+                while i < diferencia:
+                    lista_exclusion.append(True)
+                    i += 1
+                    # no se toman en cuenta nuevos personajes en una sesion
+                game_session.exclusion_fila = tuple(lista_exclusion)
+            if len(game_session.probable) < self.rownumber:
+                diferencia = self.rownumber - len(game_session.probable)
+                lista_probable = list(game_session.probable)
+                i = 0
+                while i < diferencia:
+                    lista_probable.append(0)
+                    i += 1
+                    # no se toman en cuenta nuevos personajes en una sesion
+                game_session.probable = tuple(lista_probable)
+            if "si" in form:
+                self.exclusion(game_session, True)
+                self.probabilidad(game_session, True)
+            elif "no" in form:
+                self.exclusion(game_session, False)
+                self.probabilidad(game_session, False)
+            elif "no lo se" in form:
+                pass
+            finish = game_session.is_final
+            if finish:
+                game_session.incert = self.habilitar_incertidumbre(
+                    game_session.exclusion_columna, game_session.probable,
+                )
+                if game_session.incert:
+                    self.quitar_prob(game_session)
+                    finish = False
+            game_session.posicion = self.seleccion(
+                game_session.exclusion_fila,
+                game_session.exclusion_columna,
+                game_session.incert,
             )
-            if game_session.incert:
-                self.quitar_prob(game_session)
-                finish = False
-        game_session.posicion = self.seleccion(
-            game_session.exclusion_fila,
-            game_session.exclusion_columna,
-            game_session.incert,
-        )
-        if finish:
-            question = self.get_person(game_session.probable)
-            if game_session.posicion is None or question is None:
-                question = "No pudimos encontrar tu personaje"
-            game_session.adivino = True
-        else:
-            if game_session.posicion:
-                question = self.question(game_session.posicion)
-            else:
-                question = "No pudimos encontrar tu personaje"
+            if finish:
+                question = self.get_person(game_session.probable)
+                if game_session.posicion is None or question is None:
+                    question = "No pudimos encontrar tu personaje"
                 game_session.adivino = True
-        db.session.add(game_session)
+            else:
+                if game_session.posicion:
+                    question = self.question(game_session.posicion)
+                else:
+                    question = "No pudimos encontrar tu personaje"
+                    game_session.adivino = True
+            db.session.add(game_session)
         db.session.commit()
         return question, game_session.adivino
 
@@ -337,28 +339,29 @@ class Comicnator(Flask):
         return success_message
 
     def insertar_sugerencia(self, data):
-        Sugerencia = MarvelSugerencias(
-            nombre=data[1],
-            genero=data[2],
-            origen=data[3],
-            empezo=data[4],
-            capacidad=data[5],
-            describe=data[6],
-        )
-        db.session.add(Sugerencia)
+        with db.session.no_autoflush:
+            sugerencia = MarvelSugerencias(
+                nombre=data[1],
+                genero=data[2],
+                origen=data[3],
+                empezo=data[4],
+                capacidad=data[5],
+                describe=data[6],
+            )
+            db.session.add(sugerencia)
         db.session.commit()
 
     def insertar(self, data):
-        Heroe = HeroesMarvel(
-            id=self.rownumber + 1,
-            nombre=data[1],
-            genero=data[2],
-            origen=data[3],
-            empezo=data[4],
-            capacidad=data[5],
-            describe=data[6],
-        )
-        db.session.add(Heroe)
+        with db.session.no_autoflush:
+            heroe = HeroesMarvel(
+                nombre=data[1],
+                genero=data[2],
+                origen=data[3],
+                empezo=data[4],
+                capacidad=data[5],
+                describe=data[6],
+            )
+            db.session.add(heroe)
         db.session.commit()
         self._rownumber_c += 100
 

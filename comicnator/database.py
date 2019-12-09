@@ -55,7 +55,7 @@ def init_db_command():
 class User(db.Model, UserMixin):
     __tablename__ = "User"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(94))
 
@@ -85,7 +85,7 @@ class HeroesMarvel(db.Model):
             "se describe como",
         ),
     )
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre = db.Column(db.String, nullable=False)
     genero = db.Column("es de genero", db.String, nullable=False)
     origen = db.Column("es de origen", db.String, nullable=False)
@@ -98,7 +98,7 @@ class HeroesMarvel(db.Model):
 
 
 class MarvelSugerencias(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre = db.Column(db.String, nullable=False)
     genero = db.Column("es de genero", db.String, nullable=False)
     origen = db.Column("es de origen", db.String, nullable=False)
@@ -122,7 +122,7 @@ class MarvelSugerencias(db.Model):
 class GameSessions(db.Model):
     """List of current user sessions"""
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     creation_time = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=True)
     user = db.relationship("User", backref="sessions")
