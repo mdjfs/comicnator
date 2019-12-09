@@ -293,8 +293,8 @@ class Comicnator(Flask):
         i = 0
         cols = self.columnumber - 1
         rows = self.rownumber - 1
-        max_searches = round(rows / 15 * 500)
-        max_incert = round(rows / 15 * 300)
+        max_searches = round(rows / 15 * 1000)
+        max_incert = round(rows / 15 * 600)
         initcols = 2
         # debe saltarse id y nombre
         limitcols = cols - 1
