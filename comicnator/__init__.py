@@ -126,6 +126,7 @@ class Comicnator(Flask):
                 question, person = self.get_person(game_session.probable)
                 if game_session.posicion is None or question is None:
                     question = "No pudimos encontrar tu personaje"
+                    person = None
                 game_session.adivino = True
             else:
                 if game_session.posicion:

@@ -11,12 +11,19 @@
 {% endif %}
 {% if final == true %}
 <div class="cuadro">
-    <img id="personaje" onerror="this.src = {{ url_for('static', filename='notfound.jpg') }}" src="{{ url_for('static', filename=person.lower()+'.jpg') }}" ></img>
+    {% if person is not none %}
+    <img id="personaje" src="{{url_for('static', filename=person+'.jpg')}}"
+        onerror=this.src="{{url_for('static', filename='notfound.jpg')}}">
+    </img>
+    {% endif %}
     <h2 id='1'>{{ pregunta }}</h2>
     <form method="POST">
-        <p id="final">
-
-        </p>
+        {% if person is none %}
+        <p id="final">No pudiste encontrar tu personaje?</p>
+        {% endif %}
+        {% if person is not none %}
+        <p id="final">Ese no es tu personaje?</p>
+        {% endif %}
         <input id="irfinal" type="submit" name="final" value="" class="text">
         <div class="volver">
             <input type="submit" name="volver" value="<" class="volverbutton">
@@ -26,5 +33,3 @@
 </div>
 {% endif %}
 {%endblock%}
-
-
