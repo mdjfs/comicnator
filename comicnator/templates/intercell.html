@@ -11,7 +11,7 @@
 {% endif %}
 {% if final == true %}
 <div class="cuadro">
-    <img id="personaje" onerror="imagenotfound()"></img>
+    <img id="personaje" onerror="this.src = {{ url_for('static', filename='notfound.jpg') }}" src="{{ url_for('static', filename=person.lower()+'.jpg') }}" ></img>
     <h2 id='1'>{{ pregunta }}</h2>
     <form method="POST">
         <p id="final">
@@ -23,7 +23,8 @@
             Volver a jugar
         </div>
     </form>
-    <script type="text/javascript" src="{{url_for('static',filename='js/images.js')}}"></script>
 </div>
 {% endif %}
 {%endblock%}
+
+

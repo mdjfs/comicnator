@@ -66,13 +66,15 @@ def interaccion():
         return redirect(url_for("comicnator.datos"))
     if not session.get("session_id") or "volver" in request.form:
         return redirect(url_for("comicnator.start_game"))
-    pregunta, termino = current_app.interaccion(session["session_id"], request.form)
-    if termino:
+    pregunta, final, person = current_app.interaccion(
+        session["session_id"], request.form
+    )
+    if final:
         del session["session_id"]
     if session["device"] == "computer":
-        return render_template("inter.html", pregunta=pregunta, final=termino)
+        return render_template("inter.html", **locals())
     if session["device"] == "cellphone":
-        return render_template("intercell.html", pregunta=pregunta, final=termino)
+        return render_template("intercell.html", **locals())
     return render_template("unsupported.html")
 
 

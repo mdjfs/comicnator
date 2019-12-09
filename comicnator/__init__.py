@@ -80,6 +80,7 @@ class Comicnator(Flask):
         xD, se encarga de manejar todo lo que son las preguntas
         y respuestas """
         game_session = GameSessions.query.filter_by(id=session_id).first()
+        person = None
         with db.session.no_autoflush:
             # verifico si no hay nuevos personajes
             if len(game_session.exclusion_fila) < self.rownumber:
@@ -122,7 +123,7 @@ class Comicnator(Flask):
                 game_session.incert,
             )
             if finish:
-                question = self.get_person(game_session.probable)
+                question, person = self.get_person(game_session.probable)
                 if game_session.posicion is None or question is None:
                     question = "No pudimos encontrar tu personaje"
                 game_session.adivino = True
@@ -134,7 +135,7 @@ class Comicnator(Flask):
                     game_session.adivino = True
             db.session.add(game_session)
         db.session.commit()
-        return question, game_session.adivino
+        return question, game_session.adivino, person
 
     def question(self, pos):
         """Metodo que se encarga de buscar en la base de datos
@@ -285,7 +286,7 @@ class Comicnator(Flask):
             return None
         for i, heroe in enumerate(HeroesMarvel.query):
             if i == pos:
-                return "Su personaje es " + heroe.nombre
+                return "Su personaje es " + heroe.nombre, heroe.nombre
 
     def seleccion(self, exclusion_fila, exclusion_columna, incert):
         """Metodo que se encarga de

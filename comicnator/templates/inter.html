@@ -16,7 +16,7 @@
         </form>
     {% endif %}
     {% if final == true %}
-        <img id="personaje" onerror="imagenotfound()" />
+    <img id="personaje" onerror="this.src = {{ url_for('static', filename='notfound.jpg') }}" src="{{ url_for('static', filename=person.lower()+'.jpg') }}" ></img>
         <h2 id='1'>{{ pregunta }}</h2>
         <form method="POST">
             <p id="final"></p>
@@ -26,9 +26,4 @@
             </div>
         </form>
     {% endif %}
-{% endblock %}
-
-
-{% block scripts %}
-    <script type="text/javascript" src="{{url_for('static',filename='js/images.js')}}"></script>
 {% endblock %}
