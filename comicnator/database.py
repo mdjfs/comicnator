@@ -10,7 +10,9 @@ from flask_login import LoginManager, UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
 login = LoginManager()
-db = SQLAlchemy()
+db = SQLAlchemy(
+    session_options={"autoflush": False, "autocommit": False, "expire_on_commit": False}
+)
 
 
 def init_app(app):
